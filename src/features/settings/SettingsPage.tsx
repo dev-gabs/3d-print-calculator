@@ -116,12 +116,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   return (
     <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-[#E3E6E2]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-border">
         <div>
-          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-[#171A18]">
+          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-txt">
             Configurações Globais
           </h1>
-          <p className="text-[13px] sm:text-[14px] text-[#707570] mt-1">
+          <p className="text-[13px] sm:text-[14px] text-txt-muted mt-1">
             Defina parâmetros padrões de energia, máquina e taxas de canais de venda.
           </p>
         </div>
@@ -129,7 +129,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
         <button
           type="button"
           onClick={handleSave}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#2F6B4A] hover:bg-[#26573C] text-white text-[13px] font-medium transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-brand hover:bg-brand-hover text-white text-[13px] font-medium transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
         >
           {saveFeedback ? (
             <>
@@ -146,17 +146,17 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
       <form onSubmit={handleSave} className="space-y-8 max-w-3xl">
         {/* Bloco 1: Energia e Máquina */}
-        <section className="bg-white rounded-xl border border-[#E3E6E2] p-5 sm:p-6 shadow-2xs">
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#E3E6E2]/70">
-            <Zap className="w-4 h-4 text-[#2F6B4A]" />
-            <h2 className="text-[15px] font-semibold text-[#171A18]">
+        <section className="bg-surface rounded-xl border border-border p-5 sm:p-6 shadow-2xs">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/70">
+            <Zap className="w-4 h-4 text-brand" />
+            <h2 className="text-[15px] font-semibold text-txt">
               Energia & Custos Operacionais
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+              <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                 Potência média da impressora (Watts)
               </label>
               <div className="relative flex items-center">
@@ -171,23 +171,23 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                       printerPowerWatts: parseFloat(e.target.value) || 200,
                     }))
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] px-3 py-1.5 pr-8 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none"
+                  className="w-full bg-canvas text-txt px-3 py-1.5 pr-8 rounded-md border border-border font-mono text-[13px] outline-none"
                 />
-                <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono">
+                <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono">
                   W
                 </span>
               </div>
-              <span className="text-[11px] text-[#707570] mt-1 block">
+              <span className="text-[11px] text-txt-muted mt-1 block">
                 Ex.: Ender 3 / Bambu A1 consomem cerca de 100W a 200W em regime contínuo.
               </span>
             </div>
 
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+              <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                 Tarifa de energia elétrica (R$ / kWh)
               </label>
               <div className="relative flex items-center">
-                <span className="absolute left-3 text-[12px] text-[#707570] font-mono">
+                <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                   R$
                 </span>
                 <input
@@ -202,20 +202,20 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                       energyCostKwh: parseFloat(e.target.value) || 0.95,
                     }))
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] pl-9 pr-3 py-1.5 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none"
+                  className="w-full bg-canvas text-txt pl-9 pr-3 py-1.5 rounded-md border border-border font-mono text-[13px] outline-none"
                 />
               </div>
-              <span className="text-[11px] text-[#707570] mt-1 block">
+              <span className="text-[11px] text-txt-muted mt-1 block">
                 Consulte o valor do kWh na sua conta de luz (média Brasil: R$ 0,85 a R$ 1,15).
               </span>
             </div>
 
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+              <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                 Desgaste / Manutenção (R$ por hora)
               </label>
               <div className="relative flex items-center">
-                <span className="absolute left-3 text-[12px] text-[#707570] font-mono">
+                <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                   R$
                 </span>
                 <input
@@ -229,20 +229,20 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                       wearCostPerHour: parseFloat(e.target.value) || 0,
                     }))
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] pl-9 pr-3 py-1.5 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none"
+                  className="w-full bg-canvas text-txt pl-9 pr-3 py-1.5 rounded-md border border-border font-mono text-[13px] outline-none"
                 />
               </div>
-              <span className="text-[11px] text-[#707570] mt-1 block">
+              <span className="text-[11px] text-txt-muted mt-1 block">
                 Cobre bicos, correias, lubrificação e peças de reposição.
               </span>
             </div>
 
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+              <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                 Depreciação da máquina (R$ por hora)
               </label>
               <div className="relative flex items-center">
-                <span className="absolute left-3 text-[12px] text-[#707570] font-mono">
+                <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                   R$
                 </span>
                 <input
@@ -256,10 +256,10 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                       depreciationPerHour: parseFloat(e.target.value) || 0,
                     }))
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] pl-9 pr-3 py-1.5 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none"
+                  className="w-full bg-canvas text-txt pl-9 pr-3 py-1.5 rounded-md border border-border font-mono text-[13px] outline-none"
                 />
               </div>
-              <span className="text-[11px] text-[#707570] mt-1 block">
+              <span className="text-[11px] text-txt-muted mt-1 block">
                 Reserva financeira para comprar uma impressora nova no futuro.
               </span>
             </div>
@@ -267,20 +267,20 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
         </section>
 
         {/* Bloco 2: Mão de obra */}
-        <section className="bg-white rounded-xl border border-[#E3E6E2] p-5 sm:p-6 shadow-2xs">
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#E3E6E2]/70">
-            <Clock className="w-4 h-4 text-[#2F6B4A]" />
-            <h2 className="text-[15px] font-semibold text-[#171A18]">
+        <section className="bg-surface rounded-xl border border-border p-5 sm:p-6 shadow-2xs">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/70">
+            <Clock className="w-4 h-4 text-brand" />
+            <h2 className="text-[15px] font-semibold text-txt">
               Mão de Obra Padrão
             </h2>
           </div>
 
           <div>
-            <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+            <label className="block text-[12px] text-txt-muted mb-1 font-medium">
               Valor padrão da sua hora técnica de trabalho
             </label>
             <div className="relative flex items-center max-w-xs">
-              <span className="absolute left-3 text-[12px] text-[#707570] font-mono">
+              <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                 R$
               </span>
               <input
@@ -294,30 +294,30 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                     laborHourlyRate: parseFloat(e.target.value) || 0,
                   }))
                 }
-                className="w-full bg-[#F6F6F3] text-[#171A18] pl-9 pr-8 py-1.5 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none"
+                className="w-full bg-canvas text-txt pl-9 pr-8 py-1.5 rounded-md border border-border font-mono text-[13px] outline-none"
               />
-              <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono">
+              <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono">
                 /h
               </span>
             </div>
-            <span className="text-[11px] text-[#707570] mt-1 block">
+            <span className="text-[11px] text-txt-muted mt-1 block">
               Utilizado no Modo Avançado para calcular preparação, fatiamento, pós-processamento e montagem.
             </span>
           </div>
         </section>
 
         {/* Bloco 3: Taxas de Canais de Venda */}
-        <section className="bg-white rounded-xl border border-[#E3E6E2] p-5 sm:p-6 shadow-2xs">
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#E3E6E2]/70">
-            <Percent className="w-4 h-4 text-[#2F6B4A]" />
-            <h2 className="text-[15px] font-semibold text-[#171A18]">
+        <section className="bg-surface rounded-xl border border-border p-5 sm:p-6 shadow-2xs">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/70">
+            <Percent className="w-4 h-4 text-brand" />
+            <h2 className="text-[15px] font-semibold text-txt">
               Taxas Padrões dos Canais de Venda
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1">
+              <label className="block text-[12px] text-txt-muted mb-1">
                 Shopee
               </label>
               <div className="relative flex items-center">
@@ -330,16 +330,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   onChange={(e) =>
                     handleChannelFeeChange('shopee', parseFloat(e.target.value) || 0)
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] px-3 py-1.5 pr-7 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none text-right"
+                  className="w-full bg-canvas text-txt px-3 py-1.5 pr-7 rounded-md border border-border font-mono text-[13px] outline-none text-right"
                 />
-                <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono">
+                <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono">
                   %
                 </span>
               </div>
             </div>
 
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1">
+              <label className="block text-[12px] text-txt-muted mb-1">
                 Mercado Livre
               </label>
               <div className="relative flex items-center">
@@ -352,16 +352,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   onChange={(e) =>
                     handleChannelFeeChange('mercadolivre', parseFloat(e.target.value) || 0)
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] px-3 py-1.5 pr-7 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none text-right"
+                  className="w-full bg-canvas text-txt px-3 py-1.5 pr-7 rounded-md border border-border font-mono text-[13px] outline-none text-right"
                 />
-                <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono">
+                <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono">
                   %
                 </span>
               </div>
             </div>
 
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1">
+              <label className="block text-[12px] text-txt-muted mb-1">
                 Venda Direta
               </label>
               <div className="relative flex items-center">
@@ -374,16 +374,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   onChange={(e) =>
                     handleChannelFeeChange('direta', parseFloat(e.target.value) || 0)
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] px-3 py-1.5 pr-7 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none text-right"
+                  className="w-full bg-canvas text-txt px-3 py-1.5 pr-7 rounded-md border border-border font-mono text-[13px] outline-none text-right"
                 />
-                <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono">
+                <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono">
                   %
                 </span>
               </div>
             </div>
 
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1">
+              <label className="block text-[12px] text-txt-muted mb-1">
                 Amazon
               </label>
               <div className="relative flex items-center">
@@ -396,16 +396,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   onChange={(e) =>
                     handleChannelFeeChange('amazon', parseFloat(e.target.value) || 0)
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] px-3 py-1.5 pr-7 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none text-right"
+                  className="w-full bg-canvas text-txt px-3 py-1.5 pr-7 rounded-md border border-border font-mono text-[13px] outline-none text-right"
                 />
-                <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono">
+                <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono">
                   %
                 </span>
               </div>
             </div>
 
             <div>
-              <label className="block text-[12px] text-[#707570] mb-1">
+              <label className="block text-[12px] text-txt-muted mb-1">
                 Outro Canal
               </label>
               <div className="relative flex items-center">
@@ -418,28 +418,28 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   onChange={(e) =>
                     handleChannelFeeChange('outro', parseFloat(e.target.value) || 0)
                   }
-                  className="w-full bg-[#F6F6F3] text-[#171A18] px-3 py-1.5 pr-7 rounded-md border border-[#E3E6E2] font-mono text-[13px] outline-none text-right"
+                  className="w-full bg-canvas text-txt px-3 py-1.5 pr-7 rounded-md border border-border font-mono text-[13px] outline-none text-right"
                 />
-                <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono">
+                <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono">
                   %
                 </span>
               </div>
             </div>
           </div>
-          <p className="text-[11px] text-[#707570] mt-3">
+          <p className="text-[11px] text-txt-muted mt-3">
             Essas taxas são pré-carregadas ao selecionar cada botão na Calculadora, mas você sempre pode ajustá-las manualmente por produto.
           </p>
         </section>
 
         {/* Bloco 4: Backup e Restauração JSON */}
-        <section className="bg-white rounded-xl border border-[#E3E6E2] p-5 sm:p-6 shadow-2xs">
-          <div className="flex items-center gap-2 mb-2 pb-3 border-b border-[#E3E6E2]/70">
-            <ShieldCheck className="w-4 h-4 text-[#2F6B4A]" />
-            <h2 className="text-[15px] font-semibold text-[#171A18]">
+        <section className="bg-surface rounded-xl border border-border p-5 sm:p-6 shadow-2xs">
+          <div className="flex items-center gap-2 mb-2 pb-3 border-b border-border/70">
+            <ShieldCheck className="w-4 h-4 text-brand" />
+            <h2 className="text-[15px] font-semibold text-txt">
               Backup e Restauração de Dados
             </h2>
           </div>
-          <p className="text-[12.5px] text-[#707570] mb-4">
+          <p className="text-[12.5px] text-txt-muted mb-4">
             Seus dados são salvos localmente neste navegador. Para nunca perder suas precificações ao limpar cache, faça backups periódicos em arquivo JSON.
           </p>
 
@@ -460,18 +460,18 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             <button
               type="button"
               onClick={handleExportJSON}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-[#F6F6F3] hover:bg-[#ECEEE9] text-[#171A18] border border-[#E3E6E2] text-[12.5px] font-medium transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-canvas hover:bg-[#ECEEE9] text-txt border border-border text-[12.5px] font-medium transition-colors cursor-pointer"
             >
-              <Download className="w-4 h-4 text-[#707570]" />
+              <Download className="w-4 h-4 text-txt-muted" />
               <span>Exportar Backup (JSON)</span>
             </button>
 
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-[#F6F6F3] hover:bg-[#ECEEE9] text-[#171A18] border border-[#E3E6E2] text-[12.5px] font-medium transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-canvas hover:bg-[#ECEEE9] text-txt border border-border text-[12.5px] font-medium transition-colors cursor-pointer"
             >
-              <Upload className="w-4 h-4 text-[#707570]" />
+              <Upload className="w-4 h-4 text-txt-muted" />
               <span>Importar Backup (JSON)</span>
             </button>
             <input
@@ -485,12 +485,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
         </section>
 
         {/* Bloco 5: Redefinir para Padrões */}
-        <section className="p-5 rounded-xl bg-[#F6F6F3] border border-[#E3E6E2] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="p-5 rounded-xl bg-canvas border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h3 className="text-[13.5px] font-semibold text-[#171A18]">
+            <h3 className="text-[13.5px] font-semibold text-txt">
               Redefinir Configurações
             </h3>
-            <p className="text-[12px] text-[#707570]">
+            <p className="text-[12px] text-txt-muted">
               Restaura potência, kWh, taxas e mão de obra para os valores recomendados de fábrica.
             </p>
           </div>
@@ -508,7 +508,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               <button
                 type="button"
                 onClick={() => setShowResetConfirm(false)}
-                className="px-3 py-1.5 bg-white border border-[#E3E6E2] rounded text-[12px]"
+                className="px-3 py-1.5 bg-surface border border-border rounded text-[12px]"
               >
                 Cancelar
               </button>
@@ -517,7 +517,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             <button
               type="button"
               onClick={() => setShowResetConfirm(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-[#E3E6E2] text-[12px] text-[#707570] hover:text-red-600 transition-colors cursor-pointer self-start sm:self-auto"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface border border-border text-[12px] text-txt-muted hover:text-red-600 transition-colors cursor-pointer self-start sm:self-auto"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Padrões de fábrica</span>

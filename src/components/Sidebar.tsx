@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calculator, Package, Disc, Sliders, CheckCircle2 } from 'lucide-react';
+import { Calculator, Package, Disc, Sliders, CheckCircle2, Sun, Moon } from 'lucide-react';
 
 export type ActiveTab = 'calculator' | 'products' | 'materials' | 'settings';
 
@@ -10,6 +10,8 @@ interface SidebarProps {
   materialsCount: number;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -19,6 +21,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   materialsCount,
   isOpenMobile = false,
   onCloseMobile,
+  theme,
+  onToggleTheme,
 }) => {
   const navItems = [
     {
@@ -57,20 +61,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 w-[220px] bg-white border-r border-[#E3E6E2] flex flex-col justify-between z-50 transition-transform duration-200 ease-in-out ${
+        className={`fixed top-0 bottom-0 left-0 w-[220px] bg-surface border-r border-border flex flex-col justify-between z-50 transition-transform duration-200 ease-in-out ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         <div className="flex flex-col">
           {/* Logo Minimalista */}
-          <div className="h-14 px-5 flex items-center justify-between border-b border-[#E3E6E2]/70">
+          <div className="h-14 px-5 flex items-center justify-between border-b border-border/70">
             <button
               onClick={() => handleSelect('calculator')}
               className="flex items-center gap-2 text-left focus:outline-none"
             >
               {/* 3D Geometric Isometric Glyph */}
               <svg
-                className="w-4 h-4 text-[#2F6B4A]"
+                className="w-4 h-4 text-brand"
                 fill="none"
                 stroke="currentColor"
                 strokeLinecap="round"
@@ -82,11 +86,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
                 <line x1="12" x2="12" y1="22.08" y2="12" />
               </svg>
-              <span className="font-semibold text-[14px] tracking-tight text-[#171A18] font-sans">
+              <span className="font-semibold text-[14px] tracking-tight text-txt font-sans">
                 3D Price
               </span>
             </button>
-            <span className="font-mono text-[10px] text-[#707570] bg-[#F6F6F3] border border-[#E3E6E2] px-1.5 py-0.5 rounded">
+            <span className="font-mono text-[10px] text-txt-muted bg-canvas border border-border px-1.5 py-0.5 rounded">
               v2.4
             </span>
           </div>
@@ -102,14 +106,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => handleSelect(item.id)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-md font-medium text-[13px] transition-colors text-left ${
                     isActive
-                      ? 'bg-[#F6F6F3] text-[#171A18] border border-[#E3E6E2]/80'
-                      : 'text-[#707570] hover:text-[#171A18] hover:bg-[#F6F6F3] border border-transparent'
+                      ? 'bg-canvas text-txt border border-border/80'
+                      : 'text-txt-muted hover:text-txt hover:bg-canvas border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <Icon
                       className={`w-4 h-4 ${
-                        isActive ? 'text-[#2F6B4A]' : 'text-[#707570]'
+                        isActive ? 'text-brand' : 'text-txt-muted'
                       }`}
                       strokeWidth={1.8}
                     />
@@ -119,8 +123,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span
                       className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
                         isActive
-                          ? 'bg-[#2F6B4A]/10 text-[#2F6B4A]'
-                          : 'bg-[#E3E6E2]/70 text-[#707570]'
+                          ? 'bg-brand/10 text-brand'
+                          : 'bg-border/70 text-txt-muted'
                       }`}
                     >
                       {item.badge}
@@ -131,35 +135,51 @@ export const Sidebar: React.FC<SidebarProps> = ({
             })}
 
             {/* Divisor Sutil */}
-            <div className="my-2 border-t border-[#E3E6E2]" />
+            <div className="my-2 border-t border-border" />
 
             {/* Configurações */}
             <button
               onClick={() => handleSelect('settings')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-left ${
                 activeTab === 'settings'
-                  ? 'bg-[#F6F6F3] text-[#171A18] border border-[#E3E6E2]/80'
-                  : 'text-[#707570] hover:text-[#171A18] hover:bg-[#F6F6F3] border border-transparent'
+                  ? 'bg-canvas text-txt border border-border/80'
+                  : 'text-txt-muted hover:text-txt hover:bg-canvas border border-transparent'
               }`}
             >
               <Sliders
                 className={`w-4 h-4 ${
-                  activeTab === 'settings' ? 'text-[#2F6B4A]' : 'text-[#707570]'
+                  activeTab === 'settings' ? 'text-brand' : 'text-txt-muted'
                 }`}
                 strokeWidth={1.8}
               />
               <span>Configurações</span>
             </button>
+
+            {/* Divisor Sutil */}
+            <div className="my-2 border-t border-border" />
+
+            {/* Alternância de tema */}
+            <button
+              onClick={onToggleTheme}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-left text-txt-muted hover:text-txt hover:bg-canvas border border-transparent"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-txt-muted" strokeWidth={1.8} />
+              ) : (
+                <Moon className="w-4 h-4 text-txt-muted" strokeWidth={1.8} />
+              )}
+              <span>{theme === 'dark' ? 'Tema claro' : 'Tema escuro'}</span>
+            </button>
           </nav>
         </div>
 
         {/* Rodapé Discreto */}
-        <div className="p-4 border-t border-[#E3E6E2]/70 flex items-center justify-between text-[11px] text-[#707570]">
+        <div className="p-4 border-t border-border/70 flex items-center justify-between text-[11px] text-txt-muted">
           <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B4A]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-brand" />
             <span>Salvo localmente</span>
           </div>
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#2F6B4A]/70" />
+          <CheckCircle2 className="w-3.5 h-3.5 text-brand/70" />
         </div>
       </aside>
     </>

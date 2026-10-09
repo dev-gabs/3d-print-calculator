@@ -84,7 +84,7 @@ export function calculatePricing(
 
   // 4. Labor Cost (Advanced)
   let laborCost = 0;
-  const batchUnits = Math.max(1, state.mode === 'advanced' ? state.batchUnits || 1 : 1);
+  const batchUnits = Math.max(1, state.batchUnits || 1);
 
   if (state.mode === 'advanced' && state.enableLabor) {
     const hourlyRate = state.laborHourlyRate ?? settings.laborHourlyRate;

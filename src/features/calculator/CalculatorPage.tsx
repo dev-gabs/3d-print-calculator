@@ -154,25 +154,25 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
   return (
     <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
       {/* Header Geral */}
-      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 sm:pb-8 mb-6 sm:mb-8 border-b border-[#E3E6E2]">
+      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 sm:pb-8 mb-6 sm:mb-8 border-b border-border">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-[#171A18]">
+            <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-txt">
               Quanto essa peça realmente custa?
             </h1>
             {/* Pill Segmentada Sutil de Modo */}
-            <div className="inline-flex items-center p-0.5 rounded-full bg-white border border-[#E3E6E2] text-[12px] shadow-2xs">
+            <div className="inline-flex items-center p-0.5 rounded-full bg-surface border border-border text-[12px] shadow-2xs">
               <button
                 type="button"
                 onClick={() => handleModeChange('basic')}
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] transition-colors ${
                   state.mode === 'basic'
-                    ? 'font-medium text-[#171A18] bg-[#F6F6F3] shadow-xs'
-                    : 'font-normal text-[#707570] hover:text-[#171A18]'
+                    ? 'font-medium text-txt bg-canvas shadow-xs'
+                    : 'font-normal text-txt-muted hover:text-txt'
                 }`}
               >
                 {state.mode === 'basic' && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B4A]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand" />
                 )}
                 Básico
               </button>
@@ -181,18 +181,18 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 onClick={() => handleModeChange('advanced')}
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] transition-colors ${
                   state.mode === 'advanced'
-                    ? 'font-medium text-[#171A18] bg-[#F6F6F3] shadow-xs'
-                    : 'font-normal text-[#707570] hover:text-[#171A18]'
+                    ? 'font-medium text-txt bg-canvas shadow-xs'
+                    : 'font-normal text-txt-muted hover:text-txt'
                 }`}
               >
                 {state.mode === 'advanced' && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B4A]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand" />
                 )}
                 Avançado
               </button>
             </div>
           </div>
-          <p className="text-[13px] sm:text-[14px] text-[#707570] mt-1">
+          <p className="text-[13px] sm:text-[14px] text-txt-muted mt-1">
             Precifique sua peça em poucos passos.
           </p>
         </div>
@@ -200,7 +200,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
         <button
           type="button"
           onClick={onReset}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-[#E3E6E2] text-[12px] text-[#707570] hover:text-[#171A18] hover:border-[#D0D4CF] transition-colors self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface border border-border text-[12px] text-txt-muted hover:text-txt hover:border-border-subtle transition-colors self-start sm:self-auto cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>Redefinir</span>
@@ -209,10 +209,10 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
 
       {/* Banner de Modo Avançado */}
       {state.mode === 'advanced' && (
-        <div className="mb-6 p-3.5 rounded-lg bg-[#EAF3ED]/60 border border-[#2F6B4A]/25 flex items-start gap-2.5 text-[12px] text-[#171A18]">
-          <Info className="w-4 h-4 text-[#2F6B4A] shrink-0 mt-0.5" />
+        <div className="mb-6 p-3.5 rounded-lg bg-brand-light/60 border border-brand/25 flex items-start gap-2.5 text-[12px] text-txt">
+          <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
           <div>
-            <span className="font-semibold text-[#2F6B4A]">Modo Avançado ativado: </span>
+            <span className="font-semibold text-brand">Modo Avançado ativado: </span>
             <span>
               Agora você pode considerar custos que normalmente ficam escondidos (mão de obra, insumos extras, perdas de suporte e depreciação da máquina).
             </span>
@@ -236,14 +236,14 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
       {/* Grid Principal: Formulário à Esquerda, Resultado à Direita */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         {/* COLUNA ESQUERDA — Fluxo Contínuo de Perguntas */}
-        <main className="lg:col-span-7 flex flex-col divide-y divide-[#E3E6E2]">
+        <main className="lg:col-span-7 flex flex-col divide-y divide-border">
           {/* 01 — O que você vai vender? */}
           <section className="pb-7">
             <div className="flex items-center gap-2 mb-4">
-              <span className="font-mono text-[11px] font-semibold text-[#707570] tracking-wider">
+              <span className="font-mono text-[11px] font-semibold text-txt-muted tracking-wider">
                 01
               </span>
-              <h2 className="text-[15px] font-semibold text-[#171A18] tracking-tight">
+              <h2 className="text-[15px] font-semibold text-txt tracking-tight">
                 O que você vai vender?
               </h2>
             </div>
@@ -253,7 +253,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
               <div>
                 <label
                   htmlFor="input-prod-name"
-                  className="block text-[12px] text-[#707570] mb-1 font-medium"
+                  className="block text-[12px] text-txt-muted mb-1 font-medium"
                 >
                   Nome da peça
                 </label>
@@ -265,24 +265,24 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                     onChange((prev) => ({ ...prev, name: e.target.value }))
                   }
                   placeholder="Ex.: Suporte de Mesa para Headset"
-                  className="w-full bg-white text-[#171A18] px-3.5 py-2 rounded-md border border-[#E3E6E2] focus:border-[#2F6B4A] focus:ring-1 focus:ring-[#2F6B4A]/30 text-[13px] outline-none transition-colors"
+                  className="w-full bg-surface text-txt px-3.5 py-2 rounded-md border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] outline-none transition-colors"
                 />
               </div>
 
-              {/* Material Principal e Peso */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
+              {/* Material Principal, Peso e Quantidade */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+                <div className="sm:col-span-6">
                   <div className="flex items-center justify-between mb-1">
                     <label
                       htmlFor="select-material"
-                      className="block text-[12px] text-[#707570] font-medium"
+                      className="block text-[12px] text-txt-muted font-medium"
                     >
                       Material principal
                     </label>
                     <button
                       type="button"
                       onClick={onNavigateToMaterials}
-                      className="text-[11px] text-[#2F6B4A] hover:underline"
+                      className="text-[11px] text-brand hover:underline"
                     >
                       Gerenciar
                     </button>
@@ -297,7 +297,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           primaryMaterialId: e.target.value,
                         }))
                       }
-                      className="w-full bg-white text-[#171A18] px-3.5 py-2 pr-8 rounded-md border border-[#E3E6E2] focus:border-[#2F6B4A] focus:ring-1 focus:ring-[#2F6B4A]/30 text-[13px] outline-none cursor-pointer appearance-none"
+                      className="w-full bg-surface text-txt px-3.5 py-2 pr-8 rounded-md border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] outline-none cursor-pointer appearance-none"
                     >
                       {materials.map((mat) => (
                         <option key={mat.id} value={mat.id}>
@@ -306,7 +306,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                       ))}
                     </select>
                     <svg
-                      className="w-4 h-4 text-[#707570] absolute right-2.5 top-2.5 pointer-events-none"
+                      className="w-4 h-4 text-txt-muted absolute right-2.5 top-2.5 pointer-events-none"
                       fill="none"
                       stroke="currentColor"
                       strokeLinecap="round"
@@ -319,10 +319,10 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   </div>
                 </div>
 
-                <div>
+                <div className="sm:col-span-3">
                   <label
                     htmlFor="input-weight"
-                    className="block text-[12px] text-[#707570] mb-1 font-medium"
+                    className="block text-[12px] text-txt-muted mb-1 font-medium"
                   >
                     Peso da peça
                   </label>
@@ -340,20 +340,44 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                         }))
                       }
                       placeholder="146"
-                      className="w-full bg-white text-[#171A18] px-3.5 py-2 pr-8 rounded-md border border-[#E3E6E2] focus:border-[#2F6B4A] focus:ring-1 focus:ring-[#2F6B4A]/30 text-[13px] font-mono outline-none transition-colors"
+                      className="w-full bg-surface text-txt px-3.5 py-2 pr-8 rounded-md border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] font-mono outline-none transition-colors"
                     />
-                    <span className="absolute right-3 text-[12px] text-[#707570] font-mono pointer-events-none">
+                    <span className="absolute right-3 text-[12px] text-txt-muted font-mono pointer-events-none">
                       g
                     </span>
                   </div>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="input-quantity"
+                    className="block text-[12px] text-txt-muted mb-1 font-medium"
+                  >
+                    Quantidade
+                  </label>
+                  <input
+                    id="input-quantity"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={state.batchUnits || 1}
+                    onChange={(e) =>
+                      onChange((prev) => ({
+                        ...prev,
+                        batchUnits: parseInt(e.target.value, 10) || 1,
+                      }))
+                    }
+                    placeholder="1"
+                    className="w-full bg-surface text-txt px-3.5 py-2 rounded-md border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] font-mono outline-none transition-colors"
+                  />
                 </div>
               </div>
 
               {/* Modo Avançado: Perda de Material e Multi-material */}
               {state.mode === 'advanced' && (
-                <div className="mt-2 pt-3 border-t border-[#E3E6E2]/70 space-y-3">
+                <div className="mt-2 pt-3 border-t border-border/70 space-y-3">
                   {/* Perda / Desperdício */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-md bg-[#F6F6F3] border border-[#E3E6E2]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-md bg-canvas border border-border">
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
@@ -365,9 +389,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                             enableWaste: e.target.checked,
                           }))
                         }
-                        className="rounded text-[#2F6B4A] focus:ring-[#2F6B4A]"
+                        className="rounded text-brand focus:ring-brand"
                       />
-                      <label htmlFor="chk-waste" className="text-[12px] text-[#171A18] font-medium cursor-pointer">
+                      <label htmlFor="chk-waste" className="text-[12px] text-txt font-medium cursor-pointer">
                         Considerar perda de material (suportes, purgas e brim)
                       </label>
                     </div>
@@ -384,9 +408,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                               wastePct: parseFloat(e.target.value) || 5,
                             }))
                           }
-                          className="w-16 bg-white text-[#171A18] px-2 py-1 rounded border border-[#E3E6E2] text-right font-mono text-[12px] outline-none"
+                          className="w-16 bg-surface text-txt px-2 py-1 rounded border border-border text-right font-mono text-[12px] outline-none"
                         />
-                        <span className="text-[12px] text-[#707570] font-mono">%</span>
+                        <span className="text-[12px] text-txt-muted font-mono">%</span>
                       </div>
                     )}
                   </div>
@@ -394,13 +418,13 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   {/* Multi-material entries */}
                   {state.additionalMaterials.length > 0 && (
                     <div className="space-y-2">
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#707570]">
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-txt-muted">
                         Materiais Adicionais (Bicolor / Suporte PVA)
                       </span>
                       {state.additionalMaterials.map((entry) => (
                         <div
                           key={entry.id}
-                          className="flex items-center gap-2 p-2 rounded-md bg-white border border-[#E3E6E2]"
+                          className="flex items-center gap-2 p-2 rounded-md bg-surface border border-border"
                         >
                           <select
                             value={entry.materialId}
@@ -409,7 +433,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                 materialId: e.target.value,
                               })
                             }
-                            className="flex-1 bg-transparent text-[12px] text-[#171A18] outline-none"
+                            className="flex-1 bg-transparent text-[12px] text-txt outline-none"
                           >
                             {materials.map((m) => (
                               <option key={m.id} value={m.id}>
@@ -428,14 +452,14 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                 })
                               }
                               placeholder="20"
-                              className="w-16 px-2 py-1 border border-[#E3E6E2] rounded text-right font-mono text-[12px] outline-none"
+                              className="w-16 px-2 py-1 border border-border rounded text-right font-mono text-[12px] outline-none"
                             />
-                            <span className="text-[11px] font-mono text-[#707570]">g</span>
+                            <span className="text-[11px] font-mono text-txt-muted">g</span>
                           </div>
                           <button
                             type="button"
                             onClick={() => handleRemoveExtraMaterial(entry.id)}
-                            className="p-1 text-[#707570] hover:text-red-600 transition-colors"
+                            className="p-1 text-txt-muted hover:text-red-600 transition-colors"
                             aria-label="Remover material"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -448,7 +472,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   <button
                     type="button"
                     onClick={handleAddExtraMaterial}
-                    className="inline-flex items-center gap-1.5 text-[12px] text-[#2F6B4A] hover:text-[#26573C] font-medium transition-colors"
+                    className="inline-flex items-center gap-1.5 text-[12px] text-brand hover:text-brand-hover font-medium transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Adicionar outro filamento na peça</span>
@@ -461,10 +485,10 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
           {/* 02 — Quanto tempo leva? */}
           <section className="py-7">
             <div className="flex items-center gap-2 mb-4">
-              <span className="font-mono text-[11px] font-semibold text-[#707570] tracking-wider">
+              <span className="font-mono text-[11px] font-semibold text-txt-muted tracking-wider">
                 02
               </span>
-              <h2 className="text-[15px] font-semibold text-[#171A18] tracking-tight">
+              <h2 className="text-[15px] font-semibold text-txt tracking-tight">
                 Quanto tempo leva?
               </h2>
             </div>
@@ -484,13 +508,13 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                       }))
                     }
                     placeholder="4"
-                    className="w-full bg-white text-[#171A18] px-3.5 py-2 pr-7 rounded-md border border-[#E3E6E2] focus:border-[#2F6B4A] focus:ring-1 focus:ring-[#2F6B4A]/30 text-[13px] font-mono outline-none text-right transition-colors"
+                    className="w-full bg-surface text-txt px-3.5 py-2 pr-7 rounded-md border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] font-mono outline-none text-right transition-colors"
                   />
-                  <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono pointer-events-none">
+                  <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono pointer-events-none">
                     h
                   </span>
                 </div>
-                <span className="text-[#707570] text-[13px]">e</span>
+                <span className="text-txt-muted text-[13px]">e</span>
                 <div className="relative flex items-center w-28">
                   <input
                     id="input-print-mins"
@@ -505,38 +529,38 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                       }))
                     }
                     placeholder="18"
-                    className="w-full bg-white text-[#171A18] px-3.5 py-2 pr-10 rounded-md border border-[#E3E6E2] focus:border-[#2F6B4A] focus:ring-1 focus:ring-[#2F6B4A]/30 text-[13px] font-mono outline-none text-right transition-colors"
+                    className="w-full bg-surface text-txt px-3.5 py-2 pr-10 rounded-md border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] font-mono outline-none text-right transition-colors"
                   />
-                  <span className="absolute right-2.5 text-[12px] text-[#707570] font-mono pointer-events-none">
+                  <span className="absolute right-2.5 text-[12px] text-txt-muted font-mono pointer-events-none">
                     min
                   </span>
                 </div>
               </div>
-              <span className="text-[12px] text-[#707570] sm:ml-2">
+              <span className="text-[12px] text-txt-muted sm:ml-2">
                 Informado no seu fatiador.
               </span>
             </div>
 
             {/* Modo Avançado: Parâmetros de Máquina */}
             {state.mode === 'advanced' && (
-              <div className="mt-4 pt-3 border-t border-[#E3E6E2]/70 space-y-3">
+              <div className="mt-4 pt-3 border-t border-border/70 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12px]">
-                  <div className="flex items-center justify-between p-2.5 bg-white border border-[#E3E6E2] rounded-md">
-                    <span className="text-[#707570]">Potência média:</span>
-                    <span className="font-mono text-[#171A18] font-medium">
+                  <div className="flex items-center justify-between p-2.5 bg-surface border border-border rounded-md">
+                    <span className="text-txt-muted">Potência média:</span>
+                    <span className="font-mono text-txt font-medium">
                       {settings.printerPowerWatts} W
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 bg-white border border-[#E3E6E2] rounded-md">
-                    <span className="text-[#707570]">Custo de energia:</span>
-                    <span className="font-mono text-[#171A18] font-medium">
+                  <div className="flex items-center justify-between p-2.5 bg-surface border border-border rounded-md">
+                    <span className="text-txt-muted">Custo de energia:</span>
+                    <span className="font-mono text-txt font-medium">
                       {formatBRL(settings.energyCostKwh)} / kWh
                     </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <label className="flex items-center gap-2 p-2.5 bg-[#F6F6F3] border border-[#E3E6E2] rounded-md text-[12px] text-[#171A18] cursor-pointer flex-1">
+                  <label className="flex items-center gap-2 p-2.5 bg-canvas border border-border rounded-md text-[12px] text-txt cursor-pointer flex-1">
                     <input
                       type="checkbox"
                       checked={state.includeMaintenance}
@@ -546,12 +570,12 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           includeMaintenance: e.target.checked,
                         }))
                       }
-                      className="rounded text-[#2F6B4A] focus:ring-[#2F6B4A]"
+                      className="rounded text-brand focus:ring-brand"
                     />
                     <span>Manutenção ({formatBRL(settings.wearCostPerHour)}/h)</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2.5 bg-[#F6F6F3] border border-[#E3E6E2] rounded-md text-[12px] text-[#171A18] cursor-pointer flex-1">
+                  <label className="flex items-center gap-2 p-2.5 bg-canvas border border-border rounded-md text-[12px] text-txt cursor-pointer flex-1">
                     <input
                       type="checkbox"
                       checked={state.includeDepreciation}
@@ -561,7 +585,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           includeDepreciation: e.target.checked,
                         }))
                       }
-                      className="rounded text-[#2F6B4A] focus:ring-[#2F6B4A]"
+                      className="rounded text-brand focus:ring-brand"
                     />
                     <span>Depreciação ({formatBRL(settings.depreciationPerHour)}/h)</span>
                   </label>
@@ -573,10 +597,10 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
           {/* 03 — Onde você vai vender? */}
           <section className="py-7">
             <div className="flex items-center gap-2 mb-4">
-              <span className="font-mono text-[11px] font-semibold text-[#707570] tracking-wider">
+              <span className="font-mono text-[11px] font-semibold text-txt-muted tracking-wider">
                 03
               </span>
-              <h2 className="text-[15px] font-semibold text-[#171A18] tracking-tight">
+              <h2 className="text-[15px] font-semibold text-txt tracking-tight">
                 Onde você vai vender?
               </h2>
             </div>
@@ -593,8 +617,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                       onClick={() => handleChannelSelect(chan.id, chan.defaultFee)}
                       className={`py-2 px-3 rounded-md text-[13px] font-medium transition-colors border cursor-pointer ${
                         isSelected
-                          ? 'bg-[#2F6B4A] text-white border-[#2F6B4A]'
-                          : 'bg-white text-[#171A18] border-[#E3E6E2] hover:border-[#D0D4CF]'
+                          ? 'bg-brand text-white border-brand'
+                          : 'bg-surface text-txt border-border hover:border-border-subtle'
                       }`}
                     >
                       {chan.label}
@@ -604,7 +628,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
               </div>
 
               {/* Taxa estimada integrada e discreta */}
-              <div className="flex items-center gap-3 text-[13px] text-[#707570]">
+              <div className="flex items-center gap-3 text-[13px] text-txt-muted">
                 <span>Taxa do canal:</span>
                 <div className="relative flex items-center w-24">
                   <input
@@ -621,9 +645,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                       }))
                     }
                     placeholder="20"
-                    className="w-full bg-white text-[#171A18] px-3 py-1.5 pr-6 rounded-md border border-[#E3E6E2] focus:border-[#2F6B4A] focus:ring-1 focus:ring-[#2F6B4A]/30 text-[13px] font-mono outline-none text-right transition-colors"
+                    className="w-full bg-surface text-txt px-3 py-1.5 pr-6 rounded-md border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] font-mono outline-none text-right transition-colors"
                   />
-                  <span className="absolute right-2 text-[12px] text-[#707570] font-mono pointer-events-none">
+                  <span className="absolute right-2 text-[12px] text-txt-muted font-mono pointer-events-none">
                     %
                   </span>
                 </div>
@@ -631,13 +655,13 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
 
               {/* Modo Avançado: Taxa Fixa e Impostos */}
               {state.mode === 'advanced' && (
-                <div className="mt-2 pt-3 border-t border-[#E3E6E2]/70 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="mt-2 pt-3 border-t border-border/70 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+                    <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                       Tarifa fixa por venda (ex: R$ 4,00 marketplace)
                     </label>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3 text-[12px] text-[#707570] font-mono">
+                      <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                         R$
                       </span>
                       <input
@@ -652,13 +676,13 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           }))
                         }
                         placeholder="0,00"
-                        className="w-full bg-white text-[#171A18] pl-9 pr-3 py-1.5 rounded-md border border-[#E3E6E2] text-[13px] font-mono outline-none"
+                        className="w-full bg-surface text-txt pl-9 pr-3 py-1.5 rounded-md border border-border text-[13px] font-mono outline-none"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+                    <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                       Imposto sobre NF-e (ex: Simples Nacional)
                     </label>
                     <div className="relative flex items-center">
@@ -675,9 +699,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           }))
                         }
                         placeholder="0"
-                        className="w-full bg-white text-[#171A18] px-3 py-1.5 pr-6 rounded-md border border-[#E3E6E2] text-[13px] font-mono outline-none text-right"
+                        className="w-full bg-surface text-txt px-3 py-1.5 pr-6 rounded-md border border-border text-[13px] font-mono outline-none text-right"
                       />
-                      <span className="absolute right-2 text-[12px] text-[#707570] font-mono">
+                      <span className="absolute right-2 text-[12px] text-txt-muted font-mono">
                         %
                       </span>
                     </div>
@@ -691,15 +715,15 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
           <section className="pt-7 pb-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[11px] font-semibold text-[#707570] tracking-wider">
+                <span className="font-mono text-[11px] font-semibold text-txt-muted tracking-wider">
                   04
                 </span>
-                <h2 className="text-[15px] font-semibold text-[#171A18] tracking-tight">
+                <h2 className="text-[15px] font-semibold text-txt tracking-tight">
                   Quanto você quer ganhar?
                 </h2>
               </div>
               {/* Margem desejada com número bem visível e elegante */}
-              <span className="font-mono text-[16px] font-semibold text-[#171A18]">
+              <span className="font-mono text-[16px] font-semibold text-txt">
                 {state.desiredMarginPct}%
               </span>
             </div>
@@ -720,28 +744,28 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 }
                 className="w-full cursor-pointer"
               />
-              <div className="flex justify-between text-[11px] text-[#707570]">
+              <div className="flex justify-between text-[11px] text-txt-muted">
                 <span>Menor margem (10%)</span>
                 <span>Maior margem (80%)</span>
               </div>
-              <p className="text-[12px] text-[#707570] mt-1">
+              <p className="text-[12px] text-txt-muted mt-1">
                 Margem calculada sobre o preço de venda. É a porcentagem que sobra líquida para você.
               </p>
             </div>
 
             {/* Modo Avançado: Mão de Obra, Insumos Extras e Lote */}
             {state.mode === 'advanced' && (
-              <div className="mt-6 pt-5 border-t border-[#E3E6E2] space-y-6">
+              <div className="mt-6 pt-5 border-t border-border space-y-6">
                 {/* Mão de Obra */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-[#2F6B4A]" />
-                      <h3 className="text-[14px] font-semibold text-[#171A18]">
+                      <Clock className="w-4 h-4 text-brand" />
+                      <h3 className="text-[14px] font-semibold text-txt">
                         Seu tempo também custa (Mão de obra)
                       </h3>
                     </div>
-                    <label className="flex items-center gap-1.5 text-[12px] text-[#171A18] cursor-pointer">
+                    <label className="flex items-center gap-1.5 text-[12px] text-txt cursor-pointer">
                       <input
                         type="checkbox"
                         checked={state.enableLabor}
@@ -751,18 +775,18 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                             enableLabor: e.target.checked,
                           }))
                         }
-                        className="rounded text-[#2F6B4A] focus:ring-[#2F6B4A]"
+                        className="rounded text-brand focus:ring-brand"
                       />
                       <span>Ativar</span>
                     </label>
                   </div>
 
                   {state.enableLabor && (
-                    <div className="p-3.5 rounded-lg bg-[#F6F6F3] border border-[#E3E6E2] space-y-3">
+                    <div className="p-3.5 rounded-lg bg-canvas border border-border space-y-3">
                       <div className="flex items-center justify-between gap-3 text-[12px]">
-                        <span className="text-[#707570]">Sua hora de trabalho:</span>
+                        <span className="text-txt-muted">Sua hora de trabalho:</span>
                         <div className="flex items-center gap-1">
-                          <span className="font-mono text-[#707570]">R$</span>
+                          <span className="font-mono text-txt-muted">R$</span>
                           <input
                             type="number"
                             min="0"
@@ -774,15 +798,15 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                 laborHourlyRate: parseFloat(e.target.value) || 0,
                               }))
                             }
-                            className="w-20 px-2 py-1 bg-white border border-[#E3E6E2] rounded text-right font-mono text-[12px] outline-none"
+                            className="w-20 px-2 py-1 bg-surface border border-border rounded text-right font-mono text-[12px] outline-none"
                           />
-                          <span className="text-[#707570]">/h</span>
+                          <span className="text-txt-muted">/h</span>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[12px]">
                         <div>
-                          <label className="block text-[#707570] text-[11px] mb-1">
+                          <label className="block text-txt-muted text-[11px] mb-1">
                             Fatiamento / Mesa
                           </label>
                           <div className="flex items-center">
@@ -797,14 +821,14 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                 }))
                               }
                               placeholder="10"
-                              className="w-full bg-white px-2 py-1 border border-[#E3E6E2] rounded text-right font-mono text-[12px]"
+                              className="w-full bg-surface px-2 py-1 border border-border rounded text-right font-mono text-[12px]"
                             />
-                            <span className="ml-1 text-[#707570] font-mono text-[11px]">min</span>
+                            <span className="ml-1 text-txt-muted font-mono text-[11px]">min</span>
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-[#707570] text-[11px] mb-1">
+                          <label className="block text-txt-muted text-[11px] mb-1">
                             Pós-processamento
                           </label>
                           <div className="flex items-center">
@@ -819,14 +843,14 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                 }))
                               }
                               placeholder="15"
-                              className="w-full bg-white px-2 py-1 border border-[#E3E6E2] rounded text-right font-mono text-[12px]"
+                              className="w-full bg-surface px-2 py-1 border border-border rounded text-right font-mono text-[12px]"
                             />
-                            <span className="ml-1 text-[#707570] font-mono text-[11px]">min</span>
+                            <span className="ml-1 text-txt-muted font-mono text-[11px]">min</span>
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-[#707570] text-[11px] mb-1">
+                          <label className="block text-txt-muted text-[11px] mb-1">
                             Montagem
                           </label>
                           <div className="flex items-center">
@@ -841,9 +865,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                 }))
                               }
                               placeholder="0"
-                              className="w-full bg-white px-2 py-1 border border-[#E3E6E2] rounded text-right font-mono text-[12px]"
+                              className="w-full bg-surface px-2 py-1 border border-border rounded text-right font-mono text-[12px]"
                             />
-                            <span className="ml-1 text-[#707570] font-mono text-[11px]">min</span>
+                            <span className="ml-1 text-txt-muted font-mono text-[11px]">min</span>
                           </div>
                         </div>
                       </div>
@@ -855,15 +879,15 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <PackagePlus className="w-4 h-4 text-[#2F6B4A]" />
-                      <h3 className="text-[14px] font-semibold text-[#171A18]">
+                      <PackagePlus className="w-4 h-4 text-brand" />
+                      <h3 className="text-[14px] font-semibold text-txt">
                         Embalagem e outros insumos
                       </h3>
                     </div>
                     <button
                       type="button"
                       onClick={handleAddExtraCost}
-                      className="inline-flex items-center gap-1 text-[12px] text-[#2F6B4A] hover:underline font-medium"
+                      className="inline-flex items-center gap-1 text-[12px] text-brand hover:underline font-medium"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Adicionar item</span>
@@ -875,7 +899,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                       {state.extraCosts.map((extra) => (
                         <div
                           key={extra.id}
-                          className="flex items-center gap-2 p-2 rounded-md bg-white border border-[#E3E6E2]"
+                          className="flex items-center gap-2 p-2 rounded-md bg-surface border border-border"
                         >
                           <input
                             type="text"
@@ -884,10 +908,10 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                               handleUpdateExtraCost(extra.id, { name: e.target.value })
                             }
                             placeholder="Nome (ex: Parafuso M3, Caixa)"
-                            className="flex-1 bg-transparent text-[12px] text-[#171A18] outline-none"
+                            className="flex-1 bg-transparent text-[12px] text-txt outline-none"
                           />
                           <div className="flex items-center gap-1">
-                            <span className="font-mono text-[11px] text-[#707570]">R$</span>
+                            <span className="font-mono text-[11px] text-txt-muted">R$</span>
                             <input
                               type="number"
                               min="0"
@@ -899,13 +923,13 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                 })
                               }
                               placeholder="2.50"
-                              className="w-20 px-2 py-1 border border-[#E3E6E2] rounded text-right font-mono text-[12px] outline-none"
+                              className="w-20 px-2 py-1 border border-border rounded text-right font-mono text-[12px] outline-none"
                             />
                           </div>
                           <button
                             type="button"
                             onClick={() => handleRemoveExtraCost(extra.id)}
-                            className="p-1 text-[#707570] hover:text-red-600 transition-colors"
+                            className="p-1 text-txt-muted hover:text-red-600 transition-colors"
                             aria-label="Remover insumo"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -914,40 +938,23 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[12px] text-[#707570] italic">
+                    <p className="text-[12px] text-txt-muted italic">
                       Nenhum insumo extra cadastrado. Adicione embalagens, parafusos, ímãs ou cola.
                     </p>
                   )}
                 </div>
 
                 {/* Produção em Lote */}
-                <div className="p-3.5 rounded-lg bg-[#F6F6F3] border border-[#E3E6E2] space-y-3">
+                <div className="p-3.5 rounded-lg bg-canvas border border-border space-y-3">
                   <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-[#2F6B4A]" />
-                    <h4 className="text-[13px] font-semibold text-[#171A18]">
+                    <Layers className="w-4 h-4 text-brand" />
+                    <h4 className="text-[13px] font-semibold text-txt">
                       Produção em Lote / Atacado
                     </h4>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12px]">
+                  <div className="grid grid-cols-1 gap-3 text-[12px]">
                     <div>
-                      <label className="block text-[#707570] mb-1">
-                        Unidades no lote
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={state.batchUnits || 1}
-                        onChange={(e) =>
-                          onChange((prev) => ({
-                            ...prev,
-                            batchUnits: parseInt(e.target.value, 10) || 1,
-                          }))
-                        }
-                        className="w-full bg-white px-3 py-1.5 border border-[#E3E6E2] rounded font-mono text-[12px]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[#707570] mb-1">
+                      <label className="block text-txt-muted mb-1">
                         Desconto no volume (%)
                       </label>
                       <input
@@ -962,16 +969,16 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           }))
                         }
                         placeholder="0"
-                        className="w-full bg-white px-3 py-1.5 border border-[#E3E6E2] rounded font-mono text-[12px] text-right"
+                        className="w-full bg-surface px-3 py-1.5 border border-border rounded font-mono text-[12px] text-right"
                       />
                     </div>
                   </div>
                   {state.batchUnits > 1 && (
-                    <div className="pt-2 border-t border-[#E3E6E2] flex items-center justify-between text-[12px]">
-                      <span className="text-[#707570]">
+                    <div className="pt-2 border-t border-border flex items-center justify-between text-[12px]">
+                      <span className="text-txt-muted">
                         Total do lote ({state.batchUnits} peças):
                       </span>
-                      <span className="font-mono font-semibold text-[#171A18]">
+                      <span className="font-mono font-semibold text-txt">
                         {formatBRL(calculation.totalBatchRevenue)}
                       </span>
                     </div>
@@ -987,7 +994,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
               <button
                 type="button"
                 onClick={() => handleModeChange('advanced')}
-                className="inline-flex items-center gap-1.5 text-[12px] text-[#707570] hover:text-[#2F6B4A] transition-colors group text-left cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-[12px] text-txt-muted hover:text-brand transition-colors group text-left cursor-pointer"
               >
                 <span>
                   Precisa de controle sobre depreciação, mão de obra e perdas? Alternar para o{' '}
@@ -1001,13 +1008,13 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
 
         {/* COLUNA DIREITA — O RESULTADO COMO ELEMENTO HERO (Sticky, Sem empilhamento de cards) */}
         <aside className="lg:col-span-5 lg:sticky lg:top-8">
-          <div className="bg-white rounded-xl border border-[#E3E6E2] p-6 sm:p-7 flex flex-col shadow-xs">
+          <div className="bg-surface rounded-xl border border-border p-6 sm:p-7 flex flex-col shadow-xs">
             {/* Status discreto */}
-            <div className="flex items-center justify-between pb-5 border-b border-[#E3E6E2]">
+            <div className="flex items-center justify-between pb-5 border-b border-border">
               <div
                 className={`inline-flex items-center gap-1.5 text-[12px] font-medium ${
                   calculation.statusTag.tone === 'healthy'
-                    ? 'text-[#2F6B4A]'
+                    ? 'text-brand'
                     : calculation.statusTag.tone === 'tight'
                     ? 'text-amber-700'
                     : calculation.statusTag.tone === 'loss'
@@ -1018,7 +1025,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
                     calculation.statusTag.tone === 'healthy'
-                      ? 'bg-[#2F6B4A]'
+                      ? 'bg-brand'
                       : calculation.statusTag.tone === 'tight'
                       ? 'bg-amber-600'
                       : calculation.statusTag.tone === 'loss'
@@ -1028,42 +1035,57 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 />
                 <span>{calculation.statusTag.label}</span>
               </div>
-              <span className="font-mono text-[11px] text-[#707570]">Resultado</span>
+              <span className="font-mono text-[11px] text-txt-muted">Resultado</span>
             </div>
 
             {/* Bloco Hero Principal: Preço Recomendado */}
             <div className="py-6 flex flex-col">
-              <span className="font-mono text-[11px] uppercase tracking-wider text-[#707570] font-medium">
-                PREÇO RECOMENDADO
+              <span className="font-mono text-[11px] uppercase tracking-wider text-txt-muted font-medium">
+                {state.batchUnits > 1 ? 'PREÇO UNITÁRIO' : 'PREÇO RECOMENDADO'}
               </span>
               {/* PREÇO HERO ENORME E INCONFUNDÍVEL */}
-              <div className="font-display text-[42px] sm:text-[48px] font-bold text-[#171A18] tracking-tight leading-none mt-2 mb-2 tabular-nums">
+              <div className="font-display text-[42px] sm:text-[48px] font-bold text-txt tracking-tight leading-none mt-2 mb-2 tabular-nums">
                 {formatBRL(calculation.recommendedPrice)}
               </div>
               {/* Sub-linha harmoniosa */}
-              <p className="text-[13px] text-[#707570]">
+              <p className="text-[13px] text-txt-muted">
                 Margem de {formatPercent(calculation.realMarginPct)} · Lucro de{' '}
                 {formatBRL(calculation.profit)}
               </p>
+
+              {state.batchUnits > 1 && (
+                <div className="mt-5 p-4 bg-canvas border border-border/80 rounded-lg flex flex-col">
+                  <span className="text-[11px] uppercase tracking-wider text-txt-muted font-medium mb-1">
+                    Total do Lote ({state.batchUnits} unid.)
+                  </span>
+                  <div className="font-display text-[28px] font-bold text-brand tracking-tight tabular-nums">
+                    {formatBRL(calculation.totalBatchRevenue)}
+                  </div>
+                  <div className="text-[12px] text-txt-muted mt-1">
+                    Custo total: {formatBRL(calculation.totalBatchCost)} · Lucro total:{' '}
+                    {formatBRL(calculation.profit * state.batchUnits)}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Linha horizontal de métricas limpas em única faixa integrada (sem cards individuais) */}
-            <div className="py-3.5 px-4 rounded-lg bg-[#F6F6F3] border border-[#E3E6E2]/80 grid grid-cols-3 divide-x divide-[#E3E6E2] mb-6">
+            <div className="py-3.5 px-4 rounded-lg bg-canvas border border-border/80 grid grid-cols-3 divide-x divide-border mb-6">
               <div className="pr-2 flex flex-col">
-                <span className="text-[11px] text-[#707570]">Custo estimado</span>
-                <span className="font-mono text-[13px] font-semibold text-[#171A18] mt-0.5 tabular-nums">
+                <span className="text-[11px] text-txt-muted">Custo estimado</span>
+                <span className="font-mono text-[13px] font-semibold text-txt mt-0.5 tabular-nums">
                   {formatBRL(calculation.totalUnitCost)}
                 </span>
               </div>
               <div className="px-3 flex flex-col">
-                <span className="text-[11px] text-[#707570]">Seu lucro</span>
-                <span className="font-mono text-[13px] font-semibold text-[#2F6B4A] mt-0.5 tabular-nums">
+                <span className="text-[11px] text-txt-muted">Seu lucro</span>
+                <span className="font-mono text-[13px] font-semibold text-brand mt-0.5 tabular-nums">
                   {formatBRL(calculation.profit)}
                 </span>
               </div>
               <div className="pl-3 flex flex-col">
-                <span className="text-[11px] text-[#707570]">Margem</span>
-                <span className="font-mono text-[13px] font-semibold text-[#171A18] mt-0.5 tabular-nums">
+                <span className="text-[11px] text-txt-muted">Margem</span>
+                <span className="font-mono text-[13px] font-semibold text-txt mt-0.5 tabular-nums">
                   {formatPercent(calculation.realMarginPct)}
                 </span>
               </div>
@@ -1071,17 +1093,17 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
 
             {/* Modo Avançado: Barra Visual de Composição de Custos */}
             {state.mode === 'advanced' && calculation.recommendedPrice > 0 && (
-              <div className="mb-6 pb-6 border-b border-[#E3E6E2]">
-                <div className="flex items-center justify-between text-[11px] text-[#707570] mb-2 font-mono uppercase tracking-wider">
+              <div className="mb-6 pb-6 border-b border-border">
+                <div className="flex items-center justify-between text-[11px] text-txt-muted mb-2 font-mono uppercase tracking-wider">
                   <span>Composição do Preço</span>
                   <span>100%</span>
                 </div>
                 {/* Horizontal Segmented Bar */}
-                <div className="w-full h-2.5 rounded-full bg-[#E3E6E2] overflow-hidden flex">
+                <div className="w-full h-2.5 rounded-full bg-border overflow-hidden flex">
                   {matBarPct > 0 && (
                     <div
                       style={{ width: `${matBarPct}%` }}
-                      className="bg-[#2F6B4A] h-full"
+                      className="bg-brand h-full"
                       title={`Material: ${formatBRL(calculation.materialCost)}`}
                     />
                   )}
@@ -1122,9 +1144,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   )}
                 </div>
                 {/* Compact Legend */}
-                <div className="grid grid-cols-3 gap-y-1.5 gap-x-2 mt-3 text-[11px] text-[#707570]">
+                <div className="grid grid-cols-3 gap-y-1.5 gap-x-2 mt-3 text-[11px] text-txt-muted">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#2F6B4A]" />
+                    <span className="w-2 h-2 rounded-full bg-brand" />
                     <span>Material ({formatBRL(calculation.materialCost)})</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -1143,7 +1165,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                    <span className="text-[#171A18] font-medium">Lucro ({formatBRL(calculation.profit)})</span>
+                    <span className="text-txt font-medium">Lucro ({formatBRL(calculation.profit)})</span>
                   </div>
                 </div>
               </div>
@@ -1151,36 +1173,36 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
 
             {/* Três cenários de preço apresentados de forma super minimalista */}
             <div className="flex flex-col gap-2 mb-6">
-              <span className="font-mono text-[11px] text-[#707570] uppercase tracking-wider">
+              <span className="font-mono text-[11px] text-txt-muted uppercase tracking-wider">
                 Cenários de preço
               </span>
-              <div className="flex flex-col divide-y divide-[#E3E6E2] border border-[#E3E6E2] rounded-lg overflow-hidden">
+              <div className="flex flex-col divide-y divide-border border border-border rounded-lg overflow-hidden">
                 {/* Mínimo */}
                 <div
-                  className="p-2.5 flex items-center justify-between text-[12px] bg-white hover:bg-[#F6F6F3] transition-colors cursor-pointer"
+                  className="p-2.5 flex items-center justify-between text-[12px] bg-surface hover:bg-canvas transition-colors cursor-pointer"
                   onClick={() =>
                     onChange((prev) => ({ ...prev, desiredMarginPct: 15 }))
                   }
                   title="Aplicar margem mínima (15%)"
                 >
-                  <span className="text-[#707570]">Mínimo (Break-even)</span>
-                  <span className="font-mono font-medium text-[#171A18] tabular-nums">
+                  <span className="text-txt-muted">Mínimo (Break-even)</span>
+                  <span className="font-mono font-medium text-txt tabular-nums">
                     {formatBRL(calculation.minPrice)}
                   </span>
                 </div>
                 {/* Recomendado (destacado suavemente) */}
-                <div className="p-2.5 flex items-center justify-between text-[12px] bg-[#EAF3ED]/50">
-                  <div className="flex items-center gap-1.5 font-medium text-[#171A18]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B4A]" />
+                <div className="p-2.5 flex items-center justify-between text-[12px] bg-brand-light/50">
+                  <div className="flex items-center gap-1.5 font-medium text-txt">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand" />
                     <span>Recomendado</span>
                   </div>
-                  <span className="font-mono font-semibold text-[#2F6B4A] tabular-nums">
+                  <span className="font-mono font-semibold text-brand tabular-nums">
                     {formatBRL(calculation.recommendedPrice)}
                   </span>
                 </div>
                 {/* Maior margem */}
                 <div
-                  className="p-2.5 flex items-center justify-between text-[12px] bg-white hover:bg-[#F6F6F3] transition-colors cursor-pointer"
+                  className="p-2.5 flex items-center justify-between text-[12px] bg-surface hover:bg-canvas transition-colors cursor-pointer"
                   onClick={() =>
                     onChange((prev) => ({
                       ...prev,
@@ -1189,8 +1211,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   }
                   title="Aumentar margem em +15%"
                 >
-                  <span className="text-[#707570]">Maior margem</span>
-                  <span className="font-mono font-medium text-[#171A18] tabular-nums">
+                  <span className="text-txt-muted">Maior margem</span>
+                  <span className="font-mono font-medium text-txt tabular-nums">
                     {formatBRL(calculation.maxPrice)}
                   </span>
                 </div>
@@ -1203,7 +1225,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
               <button
                 type="button"
                 onClick={handleSaveClick}
-                className="w-full py-2.5 px-4 rounded-md bg-[#2F6B4A] hover:bg-[#26573C] text-white font-medium text-[13px] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                className="w-full py-2.5 px-4 rounded-md bg-brand hover:bg-brand-hover text-white font-medium text-[13px] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
               >
                 {saveSuccess ? (
                   <>
@@ -1235,17 +1257,17 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 <button
                   type="button"
                   onClick={onNewPiece}
-                  className="py-2 px-3 rounded-md bg-white hover:bg-[#F6F6F3] text-[#171A18] text-[12px] font-medium border border-[#E3E6E2] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="py-2 px-3 rounded-md bg-surface hover:bg-canvas text-txt text-[12px] font-medium border border-border transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5 text-[#707570]" />
+                  <Plus className="w-3.5 h-3.5 text-txt-muted" />
                   <span>Nova peça</span>
                 </button>
                 <button
                   type="button"
                   onClick={onOpenShare}
-                  className="py-2 px-3 rounded-md bg-white hover:bg-[#F6F6F3] text-[#171A18] text-[12px] font-medium border border-[#E3E6E2] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="py-2 px-3 rounded-md bg-surface hover:bg-canvas text-txt text-[12px] font-medium border border-border transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <Share2 className="w-3.5 h-3.5 text-[#707570]" />
+                  <Share2 className="w-3.5 h-3.5 text-txt-muted" />
                   <span>Compartilhar</span>
                 </button>
               </div>

@@ -113,19 +113,19 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
   return (
     <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-[#E3E6E2]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-border">
         <div>
-          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-[#171A18]">
+          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-txt">
             Catálogo de Materiais & Filamentos
           </h1>
-          <p className="text-[13px] sm:text-[14px] text-[#707570] mt-1">
+          <p className="text-[13px] sm:text-[14px] text-txt-muted mt-1">
             Cadastre os preços reais dos seus carretéis para calcular o custo por grama de cada peça.
           </p>
         </div>
 
         <button
           onClick={openAddModal}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-[#2F6B4A] hover:bg-[#26573C] text-white text-[13px] font-medium transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-brand hover:bg-brand-hover text-white text-[13px] font-medium transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Cadastrar material</span>
@@ -141,47 +141,47 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
           return (
             <div
               key={mat.id}
-              className="bg-white rounded-xl border border-[#E3E6E2] p-5 flex flex-col justify-between shadow-2xs hover:border-[#D0D4CF] transition-colors"
+              className="bg-surface rounded-xl border border-border p-5 flex flex-col justify-between shadow-2xs hover:border-border-subtle transition-colors"
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-[#F6F6F3] border border-[#E3E6E2] flex items-center justify-center text-[#2F6B4A]">
+                    <div className="w-8 h-8 rounded-lg bg-canvas border border-border flex items-center justify-center text-brand">
                       <Disc className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-[14px] text-[#171A18]">
+                      <h3 className="font-semibold text-[14px] text-txt">
                         {mat.name}
                       </h3>
                       {mat.brand && (
-                        <span className="text-[11px] text-[#707570] block">
+                        <span className="text-[11px] text-txt-muted block">
                           {mat.brand}
                         </span>
                       )}
                     </div>
                   </div>
-                  <span className="font-mono text-[11px] font-medium px-2 py-0.5 rounded bg-[#F6F6F3] border border-[#E3E6E2] text-[#171A18]">
+                  <span className="font-mono text-[11px] font-medium px-2 py-0.5 rounded bg-canvas border border-border text-txt">
                     {mat.type}
                   </span>
                 </div>
 
                 {/* Dados de Preço */}
-                <div className="space-y-1.5 my-4 pt-3 border-t border-[#E3E6E2]/70 text-[12.5px]">
-                  <div className="flex items-center justify-between text-[#707570]">
+                <div className="space-y-1.5 my-4 pt-3 border-t border-border/70 text-[12.5px]">
+                  <div className="flex items-center justify-between text-txt-muted">
                     <span>Preço do carretel:</span>
-                    <span className="font-mono text-[#171A18] font-medium">
+                    <span className="font-mono text-txt font-medium">
                       {formatBRL(mat.spoolPrice)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-[#707570]">
+                  <div className="flex items-center justify-between text-txt-muted">
                     <span>Peso do rolo:</span>
-                    <span className="font-mono text-[#171A18] font-medium">
+                    <span className="font-mono text-txt font-medium">
                       {mat.spoolWeightGrams}g
                     </span>
                   </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-[#E3E6E2]/50">
-                    <span className="font-medium text-[#171A18]">Custo por kg:</span>
-                    <span className="font-mono text-[14px] font-bold text-[#2F6B4A] tabular-nums">
+                  <div className="flex items-center justify-between pt-1 border-t border-border/50">
+                    <span className="font-medium text-txt">Custo por kg:</span>
+                    <span className="font-mono text-[14px] font-bold text-brand tabular-nums">
                       {formatBRL(mat.pricePerKg)}/kg
                     </span>
                   </div>
@@ -189,11 +189,11 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
               </div>
 
               {/* Rodapé / Ações */}
-              <div className="pt-3 border-t border-[#E3E6E2]/70 flex items-center justify-between text-[11px]">
-                <div className="text-[#707570]">
+              <div className="pt-3 border-t border-border/70 flex items-center justify-between text-[11px]">
+                <div className="text-txt-muted">
                   {inUse ? (
-                    <span className="inline-flex items-center gap-1 text-[#2F6B4A]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B4A]" />
+                    <span className="inline-flex items-center gap-1 text-brand">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand" />
                       Em uso em peças salvas
                     </span>
                   ) : (
@@ -214,7 +214,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                     </button>
                     <button
                       onClick={() => setDeleteWarningId(null)}
-                      className="px-2 py-0.5 bg-[#E3E6E2] text-[#171A18] rounded text-[10px]"
+                      className="px-2 py-0.5 bg-border text-txt rounded text-[10px]"
                     >
                       Não
                     </button>
@@ -223,7 +223,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => openEditModal(mat)}
-                      className="p-1.5 text-[#707570] hover:text-[#171A18] hover:bg-[#F6F6F3] rounded transition-colors"
+                      className="p-1.5 text-txt-muted hover:text-txt hover:bg-canvas rounded transition-colors"
                       title="Editar material"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -236,7 +236,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                         }
                         setDeleteWarningId(mat.id);
                       }}
-                      className="p-1.5 text-[#707570] hover:text-red-600 hover:bg-[#F6F6F3] rounded transition-colors"
+                      className="p-1.5 text-txt-muted hover:text-red-600 hover:bg-canvas rounded transition-colors"
                       title="Excluir material"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -252,19 +252,19 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
       {/* Modal Adicionar / Editar */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-xl border border-[#E3E6E2] max-w-md w-full p-6 shadow-xl relative">
+          <div className="bg-surface rounded-xl border border-border max-w-md w-full p-6 shadow-xl relative">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute right-4 top-4 text-[#707570] hover:text-[#171A18] p-1 rounded-md"
+              className="absolute right-4 top-4 text-txt-muted hover:text-txt p-1 rounded-md"
               aria-label="Fechar"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <h3 className="text-[17px] font-semibold text-[#171A18] mb-1">
+            <h3 className="text-[17px] font-semibold text-txt mb-1">
               {editingMaterial ? 'Editar Material' : 'Cadastrar Novo Material'}
             </h3>
-            <p className="text-[12px] text-[#707570] mb-4">
+            <p className="text-[12px] text-txt-muted mb-4">
               Informe o preço e peso do rolo para calcular o custo exato por grama.
             </p>
 
@@ -277,7 +277,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
 
             <form onSubmit={handleSave} className="space-y-3.5">
               <div>
-                <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+                <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                   Nome de exibição
                 </label>
                 <input
@@ -285,19 +285,19 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex.: PLA Silk Ouro, PETG Preto"
-                  className="w-full px-3 py-1.5 bg-white border border-[#E3E6E2] rounded-md text-[13px] text-[#171A18] focus:border-[#2F6B4A] outline-none"
+                  className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-[13px] text-txt focus:border-brand outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+                  <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                     Tipo de polímero
                   </label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-white border border-[#E3E6E2] rounded-md text-[13px] text-[#171A18] outline-none cursor-pointer"
+                    className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-[13px] text-txt outline-none cursor-pointer"
                   >
                     <option value="PLA">PLA</option>
                     <option value="PETG">PETG</option>
@@ -311,7 +311,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+                  <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                     Marca / Fabricante
                   </label>
                   <input
@@ -319,18 +319,18 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
                     placeholder="Ex.: 3D Fila, Voolt3D"
-                    className="w-full px-3 py-1.5 bg-white border border-[#E3E6E2] rounded-md text-[13px] text-[#171A18] outline-none"
+                    className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-[13px] text-txt outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+                  <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                     Preço pago no rolo
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-[12px] text-[#707570] font-mono">
+                    <span className="absolute left-2.5 text-[12px] text-txt-muted font-mono">
                       R$
                     </span>
                     <input
@@ -338,13 +338,13 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                       value={spoolPrice}
                       onChange={(e) => setSpoolPrice(e.target.value)}
                       placeholder="89.90"
-                      className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-[#E3E6E2] rounded-md text-[13px] font-mono text-[#171A18] outline-none"
+                      className="w-full pl-8 pr-2.5 py-1.5 bg-surface border border-border rounded-md text-[13px] font-mono text-txt outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[12px] text-[#707570] mb-1 font-medium">
+                  <label className="block text-[12px] text-txt-muted mb-1 font-medium">
                     Peso do rolo
                   </label>
                   <div className="relative flex items-center">
@@ -353,9 +353,9 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                       value={spoolWeightGrams}
                       onChange={(e) => setSpoolWeightGrams(e.target.value)}
                       placeholder="1000"
-                      className="w-full px-2.5 py-1.5 pr-7 bg-white border border-[#E3E6E2] rounded-md text-[13px] font-mono text-[#171A18] outline-none"
+                      className="w-full px-2.5 py-1.5 pr-7 bg-surface border border-border rounded-md text-[13px] font-mono text-txt outline-none"
                     />
-                    <span className="absolute right-2 text-[12px] text-[#707570] font-mono pointer-events-none">
+                    <span className="absolute right-2 text-[12px] text-txt-muted font-mono pointer-events-none">
                       g
                     </span>
                   </div>
@@ -363,9 +363,9 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
               </div>
 
               {/* Preview do cálculo */}
-              <div className="p-3 bg-[#F6F6F3] border border-[#E3E6E2] rounded-md flex items-center justify-between text-[12.5px]">
-                <span className="text-[#707570]">Custo calculado:</span>
-                <span className="font-mono font-bold text-[#2F6B4A]">
+              <div className="p-3 bg-canvas border border-border rounded-md flex items-center justify-between text-[12.5px]">
+                <span className="text-txt-muted">Custo calculado:</span>
+                <span className="font-mono font-bold text-brand">
                   {formatBRL(calculatedPreviewPricePerKg())} / kg
                 </span>
               </div>
@@ -374,13 +374,13 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3 py-1.5 border border-[#E3E6E2] rounded-md text-[12.5px] text-[#707570] hover:bg-[#F6F6F3]"
+                  className="px-3 py-1.5 border border-border rounded-md text-[12.5px] text-txt-muted hover:bg-canvas"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[#2F6B4A] hover:bg-[#26573C] text-white rounded-md text-[12.5px] font-medium"
+                  className="px-4 py-1.5 bg-brand hover:bg-brand-hover text-white rounded-md text-[12.5px] font-medium"
                 >
                   Salvar Material
                 </button>

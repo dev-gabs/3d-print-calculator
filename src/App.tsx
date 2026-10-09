@@ -39,6 +39,21 @@ export default function App() {
     getStoredLastCalcState()
   );
 
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
   // Onboarding Modal state
   const [showOnboarding, setShowOnboarding] = useState(
     () => !settings.hasCompletedOnboarding
@@ -217,7 +232,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F6F3] text-[#171A18] font-sans antialiased">
+    <div className="min-h-screen bg-canvas text-txt font-sans antialiased">
       {/* Mobile Header */}
       <MobileHeader
         activeTab={activeTab}
@@ -233,6 +248,8 @@ export default function App() {
         materialsCount={materials.length}
         isOpenMobile={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Content Area with exact desktop padding for sidebar */}

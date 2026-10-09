@@ -52,31 +52,31 @@ Gerado via 3D Price Studio`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white rounded-xl border border-[#E3E6E2] max-w-lg w-full p-6 shadow-xl relative">
+      <div className="bg-surface rounded-xl border border-border max-w-lg w-full p-6 shadow-xl relative">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-[#707570] hover:text-[#171A18] p-1 rounded-md transition-colors"
+          className="absolute right-4 top-4 text-txt-muted hover:text-txt p-1 rounded-md transition-colors"
           aria-label="Fechar"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-[#EAF3ED] text-[#2F6B4A] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-brand-light text-brand flex items-center justify-center">
             <Share2 className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-[16px] font-semibold text-[#171A18] tracking-tight">
+            <h3 className="text-[16px] font-semibold text-txt tracking-tight">
               Compartilhar Orçamento
             </h3>
-            <p className="text-[12px] text-[#707570]">
+            <p className="text-[12px] text-txt-muted">
               Copie o resumo formatado para enviar no WhatsApp ou proposta
             </p>
           </div>
         </div>
 
         {/* Preview Box */}
-        <div className="my-4 p-4 rounded-lg bg-[#F6F6F3] border border-[#E3E6E2] font-mono text-[12px] text-[#171A18] whitespace-pre-wrap select-all leading-relaxed max-h-64 overflow-y-auto">
+        <div className="my-4 p-4 rounded-lg bg-canvas border border-border font-mono text-[12px] text-txt whitespace-pre-wrap select-all leading-relaxed max-h-64 overflow-y-auto">
           {shareText}
         </div>
 
@@ -84,13 +84,13 @@ Gerado via 3D Price Studio`;
         <div className="flex items-center justify-end gap-2 pt-2">
           <button
             onClick={onClose}
-            className="py-2 px-4 rounded-md border border-[#E3E6E2] hover:bg-[#F6F6F3] text-[13px] text-[#707570] font-medium transition-colors"
+            className="py-2 px-4 rounded-md border border-border hover:bg-canvas text-[13px] text-txt-muted font-medium transition-colors"
           >
             Fechar
           </button>
           <button
             onClick={handleCopy}
-            className="py-2 px-4 rounded-md bg-[#2F6B4A] hover:bg-[#26573C] text-white font-medium text-[13px] transition-colors flex items-center gap-1.5"
+            className="py-2 px-4 rounded-md bg-brand hover:bg-brand-hover text-white font-medium text-[13px] transition-colors flex items-center gap-1.5"
           >
             {copied ? (
               <>

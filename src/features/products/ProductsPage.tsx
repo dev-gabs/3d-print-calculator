@@ -88,19 +88,19 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
   return (
     <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-[#E3E6E2]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-border">
         <div>
-          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-[#171A18]">
+          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-txt">
             Catálogo de Peças & Precificações
           </h1>
-          <p className="text-[13px] sm:text-[14px] text-[#707570] mt-1">
+          <p className="text-[13px] sm:text-[14px] text-txt-muted mt-1">
             Consulte seu histórico, edite valores e compare lucratividades.
           </p>
         </div>
 
         <button
           onClick={onNewPiece}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-[#2F6B4A] hover:bg-[#26573C] text-white text-[13px] font-medium transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-brand hover:bg-brand-hover text-white text-[13px] font-medium transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Nova precificação</span>
@@ -109,19 +109,19 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
 
       {products.length === 0 ? (
         /* Empty State */
-        <div className="bg-white rounded-xl border border-[#E3E6E2] p-12 text-center max-w-lg mx-auto my-12 shadow-2xs">
-          <div className="w-12 h-12 rounded-full bg-[#EAF3ED] text-[#2F6B4A] flex items-center justify-center mx-auto mb-4">
+        <div className="bg-surface rounded-xl border border-border p-12 text-center max-w-lg mx-auto my-12 shadow-2xs">
+          <div className="w-12 h-12 rounded-full bg-brand-light text-brand flex items-center justify-center mx-auto mb-4">
             <Package className="w-6 h-6" />
           </div>
-          <h3 className="text-[17px] font-semibold text-[#171A18] mb-1">
+          <h3 className="text-[17px] font-semibold text-txt mb-1">
             Nenhuma peça salva ainda
           </h3>
-          <p className="text-[13px] text-[#707570] mb-6">
+          <p className="text-[13px] text-txt-muted mb-6">
             Quando você precificar e salvar um item na calculadora, ele aparecerá aqui com todos os custos arquivados.
           </p>
           <button
             onClick={onNewPiece}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#2F6B4A] hover:bg-[#26573C] text-white text-[13px] font-medium transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-brand hover:bg-brand-hover text-white text-[13px] font-medium transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Calcular primeira peça</span>
@@ -130,36 +130,36 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
       ) : (
         <>
           {/* Métricas Resumidas em Faixa Única (Sem empilhamento excessivo de cards) */}
-          <div className="mb-6 p-4 rounded-xl bg-white border border-[#E3E6E2] grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-[#E3E6E2] shadow-2xs">
+          <div className="mb-6 p-4 rounded-xl bg-surface border border-border grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-border shadow-2xs">
             <div className="flex flex-col">
-              <span className="text-[11px] text-[#707570] font-mono uppercase tracking-wider">
+              <span className="text-[11px] text-txt-muted font-mono uppercase tracking-wider">
                 Peças Salvas
               </span>
-              <span className="font-display text-[22px] font-bold text-[#171A18] mt-1">
+              <span className="font-display text-[22px] font-bold text-txt mt-1">
                 {totalProducts}
               </span>
             </div>
             <div className="flex flex-col pt-3 md:pt-0 md:pl-4">
-              <span className="text-[11px] text-[#707570] font-mono uppercase tracking-wider">
+              <span className="text-[11px] text-txt-muted font-mono uppercase tracking-wider">
                 Preço Médio
               </span>
-              <span className="font-mono text-[20px] font-semibold text-[#171A18] mt-1 tabular-nums">
+              <span className="font-mono text-[20px] font-semibold text-txt mt-1 tabular-nums">
                 {formatBRL(avgPrice)}
               </span>
             </div>
             <div className="flex flex-col pt-3 md:pt-0 md:pl-4">
-              <span className="text-[11px] text-[#707570] font-mono uppercase tracking-wider">
+              <span className="text-[11px] text-txt-muted font-mono uppercase tracking-wider">
                 Lucro Total Acumulado
               </span>
-              <span className="font-mono text-[20px] font-semibold text-[#2F6B4A] mt-1 tabular-nums">
+              <span className="font-mono text-[20px] font-semibold text-brand mt-1 tabular-nums">
                 {formatBRL(totalPotentialProfit)}
               </span>
             </div>
             <div className="flex flex-col pt-3 md:pt-0 md:pl-4">
-              <span className="text-[11px] text-[#707570] font-mono uppercase tracking-wider">
+              <span className="text-[11px] text-txt-muted font-mono uppercase tracking-wider">
                 Margem Média
               </span>
-              <span className="font-mono text-[20px] font-semibold text-[#171A18] mt-1 tabular-nums">
+              <span className="font-mono text-[20px] font-semibold text-txt mt-1 tabular-nums">
                 {formatPercent(avgMargin)}
               </span>
             </div>
@@ -168,24 +168,24 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
           {/* Barra de Filtros e Busca */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-[#707570] absolute left-3 top-2.5 pointer-events-none" />
+              <Search className="w-4 h-4 text-txt-muted absolute left-3 top-2.5 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Buscar por nome da peça..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-white text-[#171A18] pl-9 pr-3 py-1.5 rounded-md border border-[#E3E6E2] focus:border-[#2F6B4A] text-[13px] outline-none"
+                className="w-full bg-surface text-txt pl-9 pr-3 py-1.5 rounded-md border border-border focus:border-brand text-[13px] outline-none"
               />
             </div>
 
             <div className="flex items-center gap-2 self-end sm:self-auto text-[12px]">
-              <span className="text-[#707570] flex items-center gap-1">
+              <span className="text-txt-muted flex items-center gap-1">
                 <ArrowUpDown className="w-3.5 h-3.5" /> Ordenar:
               </span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-white border border-[#E3E6E2] rounded px-2.5 py-1.5 text-[12px] text-[#171A18] outline-none cursor-pointer"
+                className="bg-surface border border-border rounded px-2.5 py-1.5 text-[12px] text-txt outline-none cursor-pointer"
               >
                 <option value="date">Data (mais recentes)</option>
                 <option value="price">Maior Preço</option>
@@ -196,11 +196,11 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
           </div>
 
           {/* Lista de Produtos em Tabela Limpa e Responsiva */}
-          <div className="bg-white rounded-xl border border-[#E3E6E2] overflow-hidden shadow-2xs">
+          <div className="bg-surface rounded-xl border border-border overflow-hidden shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#F6F6F3] border-b border-[#E3E6E2] text-[11px] font-mono uppercase tracking-wider text-[#707570]">
+                  <tr className="bg-canvas border-b border-border text-[11px] font-mono uppercase tracking-wider text-txt-muted">
                     <th className="py-3 px-4 font-semibold">Peça / Produto</th>
                     <th className="py-3 px-4 font-semibold">Material & Peso</th>
                     <th className="py-3 px-4 font-semibold">Tempo</th>
@@ -211,25 +211,25 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                     <th className="py-3 px-4 font-semibold text-right">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E3E6E2] text-[13px]">
+                <tbody className="divide-y divide-border text-[13px]">
                   {sortedProducts.map((p) => {
                     const isDeleting = deleteConfirmId === p.id;
                     return (
                       <tr
                         key={p.id}
-                        className="hover:bg-[#F6F6F3]/60 transition-colors group"
+                        className="hover:bg-canvas/60 transition-colors group"
                       >
                         {/* Nome */}
-                        <td className="py-3 px-4 font-medium text-[#171A18]">
+                        <td className="py-3 px-4 font-medium text-txt">
                           <div className="flex flex-col">
                             <span className="font-semibold text-[13.5px]">
                               {p.state.name || 'Sem título'}
                             </span>
-                            <span className="text-[11px] text-[#707570] flex items-center gap-1 mt-0.5">
+                            <span className="text-[11px] text-txt-muted flex items-center gap-1 mt-0.5">
                               <Calendar className="w-3 h-3" />
                               {formatDate(p.updatedAt)}
                               {p.state.mode === 'advanced' && (
-                                <span className="ml-1 px-1 py-0.2 rounded bg-[#EAF3ED] text-[#2F6B4A] text-[9.5px] font-mono">
+                                <span className="ml-1 px-1 py-0.2 rounded bg-brand-light text-brand text-[9.5px] font-mono">
                                   Avançado
                                 </span>
                               )}
@@ -238,9 +238,9 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                         </td>
 
                         {/* Material & Peso */}
-                        <td className="py-3 px-4 text-[#707570]">
+                        <td className="py-3 px-4 text-txt-muted">
                           <div className="flex flex-col">
-                            <span className="text-[#171A18]">
+                            <span className="text-txt">
                               {getMaterialName(p.state.primaryMaterialId)}
                             </span>
                             <span className="text-[11px] font-mono">
@@ -250,28 +250,28 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                         </td>
 
                         {/* Tempo */}
-                        <td className="py-3 px-4 text-[#707570] font-mono text-[12px]">
+                        <td className="py-3 px-4 text-txt-muted font-mono text-[12px]">
                           {p.state.printHours}h {p.state.printMinutes}min
                         </td>
 
                         {/* Custo */}
-                        <td className="py-3 px-4 text-right font-mono text-[12.5px] text-[#707570] tabular-nums">
+                        <td className="py-3 px-4 text-right font-mono text-[12.5px] text-txt-muted tabular-nums">
                           {formatBRL(p.calculation.totalUnitCost)}
                         </td>
 
                         {/* Preço Recomendado */}
-                        <td className="py-3 px-4 text-right font-mono text-[13.5px] font-bold text-[#171A18] tabular-nums">
+                        <td className="py-3 px-4 text-right font-mono text-[13.5px] font-bold text-txt tabular-nums">
                           {formatBRL(p.calculation.recommendedPrice)}
                         </td>
 
                         {/* Lucro */}
-                        <td className="py-3 px-4 text-right font-mono text-[12.5px] font-semibold text-[#2F6B4A] tabular-nums">
+                        <td className="py-3 px-4 text-right font-mono text-[12.5px] font-semibold text-brand tabular-nums">
                           {formatBRL(p.calculation.profit)}
                         </td>
 
                         {/* Margem */}
                         <td className="py-3 px-4 text-center">
-                          <span className="font-mono text-[11.5px] px-2 py-0.5 rounded-full bg-[#F6F6F3] border border-[#E3E6E2] text-[#171A18]">
+                          <span className="font-mono text-[11.5px] px-2 py-0.5 rounded-full bg-canvas border border-border text-txt">
                             {formatPercent(p.calculation.realMarginPct)}
                           </span>
                         </td>
@@ -291,7 +291,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                               </button>
                               <button
                                 onClick={() => setDeleteConfirmId(null)}
-                                className="px-2 py-1 bg-[#E3E6E2] hover:bg-neutral-300 text-[#171A18] rounded text-[11px]"
+                                className="px-2 py-1 bg-border hover:bg-neutral-300 text-txt rounded text-[11px]"
                               >
                                 Não
                               </button>
@@ -302,7 +302,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                               <button
                                 onClick={() => onLoadIntoCalculator(p)}
                                 title="Abrir e recalcular na Calculadora"
-                                className="p-1.5 text-[#707570] hover:text-[#2F6B4A] hover:bg-white rounded transition-colors"
+                                className="p-1.5 text-txt-muted hover:text-brand hover:bg-surface rounded transition-colors"
                               >
                                 <ExternalLink className="w-4 h-4" />
                               </button>
@@ -310,7 +310,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                               <button
                                 onClick={() => onDuplicate(p)}
                                 title="Duplicar peça"
-                                className="p-1.5 text-[#707570] hover:text-[#171A18] hover:bg-white rounded transition-colors"
+                                className="p-1.5 text-txt-muted hover:text-txt hover:bg-surface rounded transition-colors"
                               >
                                 <Copy className="w-4 h-4" />
                               </button>
@@ -318,7 +318,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                               <button
                                 onClick={() => onShareProduct(p)}
                                 title="Copiar orçamento"
-                                className="p-1.5 text-[#707570] hover:text-[#171A18] hover:bg-white rounded transition-colors"
+                                className="p-1.5 text-txt-muted hover:text-txt hover:bg-surface rounded transition-colors"
                               >
                                 <Share2 className="w-4 h-4" />
                               </button>
@@ -326,7 +326,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                               <button
                                 onClick={() => setDeleteConfirmId(p.id)}
                                 title="Excluir peça"
-                                className="p-1.5 text-[#707570] hover:text-red-600 hover:bg-white rounded transition-colors"
+                                className="p-1.5 text-txt-muted hover:text-red-600 hover:bg-surface rounded transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
