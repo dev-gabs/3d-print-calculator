@@ -107,6 +107,7 @@ console.log('--- Running 3D Price Math & Storage Validation Tests ---');
     ...INITIAL_CALC_STATE,
     mode: 'basic',
     desiredMarginPct: 40,
+    enablePlatformFee: true,
     channelFeePct: 10,
   };
   // Let's set a custom scenario with fixed cost
@@ -135,6 +136,7 @@ console.log('--- Running 3D Price Math & Storage Validation Tests ---');
 {
   const state: ProductPricingState = {
     ...INITIAL_CALC_STATE,
+    enablePlatformFee: true,
     desiredMarginPct: 80,
     channelFeePct: 20, // 80% + 20% = 100% (denominator <= 0)
   };
@@ -142,6 +144,25 @@ console.log('--- Running 3D Price Math & Storage Validation Tests ---');
   assert(!result.isValid, 'Expected invalid calculation for 100% margin+fees');
   assert(result.statusTag.tone === 'loss', 'Expected status tag to indicate unsustainable margin');
   console.log('✓ Test 7 Passed: Detecção de margem e taxas inviáveis.');
+}
+
+// Test 12: Disabled platform fee does not interfere with calculation
+{
+  const stateWithFeeDisabled: ProductPricingState = {
+    ...INITIAL_CALC_STATE,
+    enablePlatformFee: false,
+    channelFeePct: 20,
+    desiredMarginPct: 40,
+    weightGrams: 100, // 100g PLA -> R$ 8.99
+    printHours: 0,
+    printMinutes: 0,
+  };
+  const result = calculatePricing(stateWithFeeDisabled, DEFAULT_MATERIALS, DEFAULT_SETTINGS);
+  assert(result.channelFeeAmount === 0, 'Channel fee should be 0 when enablePlatformFee is false');
+  // Price should be cost / (1 - 0.40) without any 20% channel deduction
+  const expectedPrice = result.totalUnitCost / 0.60;
+  assert(Math.abs(result.recommendedPrice - expectedPrice) < 0.01, 'Price should not include disabled platform fees');
+  console.log('✓ Test 12 Passed: Card de comissão desabilitado não interfere no cálculo.');
 }
 
 // Test 8: Batch Production
@@ -186,6 +207,45 @@ console.log('--- Running 3D Price Math & Storage Validation Tests ---');
   assert(formatBRL(43.03) === 'R$ 43,03', `formatBRL error: ${formatBRL(43.03)}`);
   assert(formatPercent(40) === '40%', `formatPercent error: ${formatPercent(40)}`);
   console.log('✓ Test 10 Passed: Formatação monetária brasileira.');
+}
+
+// Test 13: Unconstrained target sale price (e.g. Cost R$ 5,00, Sale Price R$ 100,00)
+{
+  const customMaterials = [{ ...DEFAULT_MATERIALS[0], pricePerKg: 100 }];
+  const zeroSettings = {
+    ...DEFAULT_SETTINGS,
+    printerPowerWatts: 0,
+    enableWearCost: false,
+    enableDepreciation: false,
+  };
+  // 50g @ R$ 100/kg -> Cost = R$ 5.00
+  const state: ProductPricingState = {
+    ...INITIAL_CALC_STATE,
+    weightGrams: 50,
+    printHours: 0,
+    printMinutes: 0,
+    pricingMethod: 'target_price',
+    targetPrice: 100, // R$ 100.00
+    enablePlatformFee: false, // Commission disabled
+  };
+  const res1 = calculatePricing(state, customMaterials, zeroSettings);
+  assert(Math.abs(res1.totalUnitCost - 5) < 0.01, 'Cost should be 5');
+  assert(Math.abs(res1.recommendedPrice - 100) < 0.01, 'Price should be exactly 100');
+  assert(Math.abs(res1.profit - 95) < 0.01, 'Profit should be 95');
+  assert(Math.abs(res1.realMarginPct - 95) < 0.01, 'Margin should be 95%');
+
+  // With Shopee 20% activated:
+  const stateWithShopee: ProductPricingState = {
+    ...state,
+    enablePlatformFee: true,
+    channelFeePct: 20,
+  };
+  const res2 = calculatePricing(stateWithShopee, customMaterials, zeroSettings);
+  assert(Math.abs(res2.recommendedPrice - 100) < 0.01, 'Price should still be 100');
+  assert(Math.abs(res2.channelFeeAmount - 20) < 0.01, 'Channel fee should be 20');
+  assert(Math.abs(res2.profit - 75) < 0.01, 'Profit should be 75');
+  assert(Math.abs(res2.realMarginPct - 75) < 0.01, 'Margin should be 75%');
+  console.log('✓ Test 13 Passed: Preço de venda livre sem limitação e com adaptação dinâmica de comissão.');
 }
 
 // Test 11: Backup Validation

@@ -85,6 +85,9 @@ export default function App() {
       desiredMarginPct: 40,
       channel: 'shopee',
       channelFeePct: settings.channelFees.shopee ?? 20,
+      enablePlatformFee: false,
+      pricingMethod: 'target_price',
+      targetPrice: 35.00,
     });
   };
 
@@ -99,6 +102,9 @@ export default function App() {
       desiredMarginPct: 40,
       channel: 'shopee',
       channelFeePct: settings.channelFees.shopee ?? 20,
+      enablePlatformFee: false,
+      pricingMethod: 'target_price',
+      targetPrice: 0,
     });
     setActiveTab('calculator');
   };
@@ -232,7 +238,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas text-txt font-sans antialiased">
+    <div className="min-h-screen text-txt font-sans antialiased">
       {/* Mobile Header */}
       <MobileHeader
         activeTab={activeTab}

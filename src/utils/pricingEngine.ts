@@ -15,6 +15,21 @@ export function formatPercent(value: number, decimals: number = 0): string {
   return value.toFixed(decimals) + '%';
 }
 
+export function calculateMarginFromSalePrice(
+  salePrice: number,
+  totalUnitCost: number,
+  channelTaxPct: number = 0,
+  taxRatePct: number = 0,
+  fixedChannelFee: number = 0
+): { profit: number; marginPct: number } {
+  if (salePrice <= 0) return { profit: 0, marginPct: 0 };
+  const channelFee = (salePrice * (channelTaxPct / 100)) + fixedChannelFee;
+  const taxFee = salePrice * (taxRatePct / 100);
+  const profit = salePrice - totalUnitCost - channelFee - taxFee;
+  const marginPct = (profit / salePrice) * 100;
+  return { profit, marginPct };
+}
+
 export function calculatePricing(
   state: ProductPricingState,
   materials: Material[],
@@ -111,45 +126,116 @@ export function calculatePricing(
   const totalBatchCost = totalUnitCost * batchUnits;
 
   // 7. Selling Channel Fees & Margin
-  const channelTaxPct = Math.max(0, state.channelFeePct || 0);
+  // By default platform fee is disabled unless explicitly set to true
+  const isPlatformFeeEnabled = state.enablePlatformFee === true;
+  const channelTaxPct = isPlatformFeeEnabled ? Math.max(0, state.channelFeePct || 0) : 0;
   const taxRatePct = state.mode === 'advanced' ? Math.max(0, state.taxRatePct || 0) : 0;
-  const fixedChannelFee = state.mode === 'advanced' ? Math.max(0, state.fixedChannelFee || 0) : 0;
-  const marginPct = Math.max(5, Math.min(85, state.desiredMarginPct || 40));
+  const fixedChannelFee =
+    state.mode === 'advanced' && isPlatformFeeEnabled
+      ? Math.max(0, state.fixedChannelFee || 0)
+      : 0;
 
   const channelRate = channelTaxPct / 100;
   const taxRate = taxRatePct / 100;
-  const marginRate = marginPct / 100;
-
-  // Formula: Price * (1 - margin - channelRate - taxRate) = totalUnitCost + fixedChannelFee
-  const denominator = 1 - marginRate - channelRate - taxRate;
 
   let isValid = true;
   let validationMessage: string | undefined;
   let recommendedPrice = 0;
   let profit = 0;
-  let realMarginPct = marginPct;
+  let realMarginPct = 0;
+  let channelFeeAmount = 0;
+  let taxAmount = 0;
 
-  if (totalUnitCost === 0 && primaryWeight === 0 && totalPrintHours === 0) {
-    isValid = true;
-    recommendedPrice = 0;
-    profit = 0;
-  } else if (denominator <= 0.05) {
-    isValid = false;
-    validationMessage = `A soma da margem desejada (${marginPct}%) com as taxas do canal (${channelTaxPct}%) e impostos (${taxRatePct}%) ultrapassa o limite sustentável de 95%. Reduza a margem ou selecione um canal com menor taxa.`;
-    // Fallback display estimate
-    recommendedPrice = (totalUnitCost + fixedChannelFee) * 3;
-    profit = recommendedPrice - totalUnitCost - fixedChannelFee - recommendedPrice * (channelRate + taxRate);
-  } else {
-    recommendedPrice = (totalUnitCost + fixedChannelFee) / denominator;
-    profit = recommendedPrice * marginRate;
+  let statusTag: CalculationResult['statusTag'] = {
+    label: 'Boa margem',
+    tone: 'healthy',
+    description: 'Boa. Esse preço mantém uma rentabilidade consistente.',
+  };
+
+  // CASO 1: Usuário definiu diretamente o Preço de Venda Final (R$)
+  if (state.pricingMethod === 'target_price' && state.targetPrice !== undefined && state.targetPrice > 0) {
+    recommendedPrice = state.targetPrice;
+    channelFeeAmount = (recommendedPrice * channelRate) + fixedChannelFee;
+    taxAmount = recommendedPrice * taxRate;
+    profit = recommendedPrice - totalUnitCost - channelFeeAmount - taxAmount;
     realMarginPct = recommendedPrice > 0 ? (profit / recommendedPrice) * 100 : 0;
+
+    if (profit < 0) {
+      statusTag = {
+        label: 'Prejuízo',
+        tone: 'loss',
+        description: `O preço de venda (${formatBRL(recommendedPrice)}) não cobre o custo total (${formatBRL(totalUnitCost)}) e as taxas.`,
+      };
+    } else if (realMarginPct < 15) {
+      statusTag = {
+        label: 'Margem apertada',
+        tone: 'tight',
+        description: 'Atenção: margem baixa, indicada apenas para alto giro de vendas.',
+      };
+    } else if (realMarginPct >= 70) {
+      statusTag = {
+        label: 'Alta rentabilidade',
+        tone: 'healthy',
+        description: 'Margem excelente de alto valor agregado.',
+      };
+    } else {
+      statusTag = {
+        label: 'Boa margem',
+        tone: 'healthy',
+        description: 'Preço saudável que mantém lucro consistente.',
+      };
+    }
+  } else {
+    // CASO 2: Usuário definiu por Margem de Lucro (%)
+    // O teto é dinâmico: se taxas forem 0%, permite até 99%. Se houver taxa (ex: 20%), o teto é 99% - 20% = 79%.
+    const maxSafeMargin = Math.max(1, 99.5 - channelTaxPct - taxRatePct);
+    const marginPct = Math.max(1, Math.min(maxSafeMargin, state.desiredMarginPct || 40));
+    const marginRate = marginPct / 100;
+    const denominator = 1 - marginRate - channelRate - taxRate;
+
+    if (totalUnitCost === 0 && primaryWeight === 0 && totalPrintHours === 0) {
+      isValid = true;
+      recommendedPrice = 0;
+      profit = 0;
+      realMarginPct = marginPct;
+    } else if (denominator <= 0.005) {
+      isValid = false;
+      validationMessage = `A soma da margem desejada (${marginPct}%) com as taxas do canal (${channelTaxPct}%) e impostos (${taxRatePct}%) ultrapassa 99%. Reduza a margem ou desative a taxa de e-commerce.`;
+      // Estimativa visual segura de fallback
+      recommendedPrice = (totalUnitCost + fixedChannelFee) * 3;
+      channelFeeAmount = (recommendedPrice * channelRate) + fixedChannelFee;
+      taxAmount = recommendedPrice * taxRate;
+      profit = recommendedPrice - totalUnitCost - channelFeeAmount - taxAmount;
+      realMarginPct = recommendedPrice > 0 ? (profit / recommendedPrice) * 100 : 0;
+      statusTag = {
+        label: 'Margem inviável',
+        tone: 'loss',
+        description: 'Taxas e margem excedem o limite sustentável de 99%.',
+      };
+    } else {
+      recommendedPrice = (totalUnitCost + fixedChannelFee) / denominator;
+      channelFeeAmount = (recommendedPrice * channelRate) + fixedChannelFee;
+      taxAmount = recommendedPrice * taxRate;
+      profit = recommendedPrice * marginRate;
+      realMarginPct = recommendedPrice > 0 ? (profit / recommendedPrice) * 100 : 0;
+
+      if (marginPct < 20) {
+        statusTag = {
+          label: 'Margem apertada',
+          tone: 'tight',
+          description: 'Atenção: o lucro por peça está menor, indicado para alto volume.',
+        };
+      } else if (marginPct > 60) {
+        statusTag = {
+          label: 'Maior margem',
+          tone: 'healthy',
+          description: 'Margem elevada de alto valor agregado.',
+        };
+      }
+    }
   }
 
-  const channelFeeAmount = recommendedPrice * channelRate + fixedChannelFee;
-  const taxAmount = recommendedPrice * taxRate;
-
-  // 8. Price Scenarios
-  // Minimum (Break-even with 5% safety margin)
+  // Cenários auxiliares
   const minMarginRate = 0.05;
   const minDenominator = 1 - minMarginRate - channelRate - taxRate;
   const minPrice =
@@ -157,48 +243,20 @@ export function calculatePricing(
       ? (totalUnitCost + fixedChannelFee) / minDenominator
       : (totalUnitCost + fixedChannelFee) * 1.15;
 
-  // Higher margin scenario (e.g. current + 20%, clamped at 70%)
-  const maxMarginRate = Math.min(0.75, marginRate + 0.2);
+  const maxMarginRate = Math.min(0.85, Math.max(0.2, (realMarginPct / 100) + 0.15));
   const maxDenominator = 1 - maxMarginRate - channelRate - taxRate;
   const maxPrice =
     maxDenominator > 0.05
       ? (totalUnitCost + fixedChannelFee) / maxDenominator
-      : recommendedPrice * 1.6;
+      : recommendedPrice * 1.4;
 
-  // Batch production discount
+  // Desconto de lote
   const discountPct =
     state.mode === 'advanced' && state.quantityDiscountPct
       ? Math.max(0, Math.min(50, state.quantityDiscountPct))
       : 0;
   const unitPriceWithBatchDiscount = recommendedPrice * (1 - discountPct / 100);
   const totalBatchRevenue = unitPriceWithBatchDiscount * batchUnits;
-
-  // Status tag evaluation
-  let statusTag: CalculationResult['statusTag'] = {
-    label: 'Boa margem',
-    tone: 'healthy',
-    description: 'Boa. Esse preço mantém a margem que você definiu.',
-  };
-
-  if (!isValid) {
-    statusTag = {
-      label: 'Margem inviável',
-      tone: 'loss',
-      description: 'Taxas e margem excedem 95% do preço de venda.',
-    };
-  } else if (marginPct < 20) {
-    statusTag = {
-      label: 'Margem apertada',
-      tone: 'tight',
-      description: 'Atenção: o lucro por peça está menor, indicado para alto volume.',
-    };
-  } else if (marginPct > 60) {
-    statusTag = {
-      label: 'Maior margem',
-      tone: 'high',
-      description: 'Margem elevada. Verifique se está competitiva no seu nicho.',
-    };
-  }
 
   return {
     materialCost,

@@ -46,7 +46,10 @@ export interface ProductPricingState {
   printMinutes: number;
   channel: ChannelId;
   channelFeePct: number;
+  enablePlatformFee?: boolean; // toggle to enable platform/marketplace commission (default: false)
   desiredMarginPct: number; // 10% to 80%
+  pricingMethod?: 'margin' | 'target_price'; // whether user sets margin % or target sale price R$
+  targetPrice?: number; // custom sale price when pricingMethod === 'target_price'
 
   // Advanced fields (preserved across toggles)
   mode: 'basic' | 'advanced';

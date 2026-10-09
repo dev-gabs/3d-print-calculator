@@ -61,20 +61,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 w-[220px] bg-surface border-r border-border flex flex-col justify-between z-50 transition-transform duration-200 ease-in-out ${
+        className={`fixed top-0 bottom-0 left-0 w-[220px] flex flex-col justify-between z-50 transition-transform duration-200 ease-in-out ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
+        style={{
+          backgroundColor: 'var(--color-sidebar-bg)',
+          borderRight: '1px solid var(--color-sidebar-border)',
+        }}
       >
         <div className="flex flex-col">
-          {/* Logo Minimalista */}
-          <div className="h-14 px-5 flex items-center justify-between border-b border-border/70">
+          {/* Logo */}
+          <div
+            className="h-14 px-5 flex items-center justify-between"
+            style={{ borderBottom: '1px solid var(--color-sidebar-border)' }}
+          >
             <button
               onClick={() => handleSelect('calculator')}
               className="flex items-center gap-2 text-left focus:outline-none"
             >
               {/* 3D Geometric Isometric Glyph */}
               <svg
-                className="w-4 h-4 text-brand"
+                className="w-4 h-4"
+                style={{ color: '#818CF8' }}
                 fill="none"
                 stroke="currentColor"
                 strokeLinecap="round"
@@ -86,16 +94,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
                 <line x1="12" x2="12" y1="22.08" y2="12" />
               </svg>
-              <span className="font-semibold text-[14px] tracking-tight text-txt font-sans">
+              <span
+                className="font-semibold text-[14px] tracking-tight font-sans"
+                style={{ color: '#F1F5F9' }}
+              >
                 3D Price
               </span>
             </button>
-            <span className="font-mono text-[10px] text-txt-muted bg-canvas border border-border px-1.5 py-0.5 rounded">
+            <span
+              className="font-mono text-[10px] px-1.5 py-0.5 rounded"
+              style={{
+                color: 'var(--color-sidebar-text-muted)',
+                backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid var(--color-sidebar-border)',
+              }}
+            >
               v2.4
             </span>
           </div>
 
-          {/* Menu Limpo e Direto */}
+          {/* Navigation */}
           <nav className="flex flex-col gap-1 p-3">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -104,28 +122,51 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-md font-medium text-[13px] transition-colors text-left ${
-                    isActive
-                      ? 'bg-canvas text-txt border border-border/80'
-                      : 'text-txt-muted hover:text-txt hover:bg-canvas border border-transparent'
-                  }`}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg font-medium text-[13px] transition-all text-left cursor-pointer border border-transparent"
+                  style={{
+                    backgroundColor: isActive
+                      ? 'var(--color-sidebar-active-bg)'
+                      : 'transparent',
+                    color: isActive
+                      ? 'var(--color-sidebar-active-text)'
+                      : 'var(--color-sidebar-text)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)';
+                      e.currentTarget.style.color = '#E2E8F0';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--color-sidebar-text)';
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-2.5">
                     <Icon
-                      className={`w-4 h-4 ${
-                        isActive ? 'text-brand' : 'text-txt-muted'
-                      }`}
+                      className="w-4 h-4"
+                      style={{
+                        color: isActive
+                          ? '#A5B4FC'
+                          : 'var(--color-sidebar-text-muted)',
+                      }}
                       strokeWidth={1.8}
                     />
                     <span>{item.label}</span>
                   </div>
                   {item.badge !== null && (
                     <span
-                      className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
-                        isActive
-                          ? 'bg-brand/10 text-brand'
-                          : 'bg-border/70 text-txt-muted'
-                      }`}
+                      className="text-[10px] font-mono px-1.5 py-0.5 rounded-full"
+                      style={{
+                        backgroundColor: isActive
+                          ? 'rgba(99, 102, 241, 0.25)'
+                          : 'rgba(255, 255, 255, 0.08)',
+                        color: isActive
+                          ? '#C7D2FE'
+                          : 'var(--color-sidebar-text-muted)',
+                      }}
                     >
                       {item.badge}
                     </span>
@@ -134,52 +175,98 @@ export const Sidebar: React.FC<SidebarProps> = ({
               );
             })}
 
-            {/* Divisor Sutil */}
-            <div className="my-2 border-t border-border" />
+            {/* Divider */}
+            <div
+              className="my-2"
+              style={{ borderTop: '1px solid var(--color-sidebar-border)' }}
+            />
 
-            {/* Configurações */}
+            {/* Settings */}
             <button
               onClick={() => handleSelect('settings')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-left ${
-                activeTab === 'settings'
-                  ? 'bg-canvas text-txt border border-border/80'
-                  : 'text-txt-muted hover:text-txt hover:bg-canvas border border-transparent'
-              }`}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all text-left cursor-pointer border border-transparent"
+              style={{
+                backgroundColor:
+                  activeTab === 'settings'
+                    ? 'var(--color-sidebar-active-bg)'
+                    : 'transparent',
+                color:
+                  activeTab === 'settings'
+                    ? 'var(--color-sidebar-active-text)'
+                    : 'var(--color-sidebar-text)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'settings') {
+                  e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)';
+                  e.currentTarget.style.color = '#E2E8F0';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'settings') {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'var(--color-sidebar-text)';
+                }
+              }}
             >
               <Sliders
-                className={`w-4 h-4 ${
-                  activeTab === 'settings' ? 'text-brand' : 'text-txt-muted'
-                }`}
+                className="w-4 h-4"
+                style={{
+                  color:
+                    activeTab === 'settings'
+                      ? '#A5B4FC'
+                      : 'var(--color-sidebar-text-muted)',
+                }}
                 strokeWidth={1.8}
               />
               <span>Configurações</span>
             </button>
 
-            {/* Divisor Sutil */}
-            <div className="my-2 border-t border-border" />
+            {/* Divider */}
+            <div
+              className="my-2"
+              style={{ borderTop: '1px solid var(--color-sidebar-border)' }}
+            />
 
-            {/* Alternância de tema */}
+            {/* Theme toggle */}
             <button
               onClick={onToggleTheme}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-left text-txt-muted hover:text-txt hover:bg-canvas border border-transparent"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-left border border-transparent"
+              style={{ color: 'var(--color-sidebar-text-muted)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)';
+                e.currentTarget.style.color = '#E2E8F0';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'var(--color-sidebar-text-muted)';
+              }}
             >
               {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-txt-muted" strokeWidth={1.8} />
+                <Sun className="w-4 h-4" style={{ color: 'var(--color-sidebar-text-muted)' }} strokeWidth={1.8} />
               ) : (
-                <Moon className="w-4 h-4 text-txt-muted" strokeWidth={1.8} />
+                <Moon className="w-4 h-4" style={{ color: 'var(--color-sidebar-text-muted)' }} strokeWidth={1.8} />
               )}
               <span>{theme === 'dark' ? 'Tema claro' : 'Tema escuro'}</span>
             </button>
           </nav>
         </div>
 
-        {/* Rodapé Discreto */}
-        <div className="p-4 border-t border-border/70 flex items-center justify-between text-[11px] text-txt-muted">
+        {/* Footer */}
+        <div
+          className="p-4 flex items-center justify-between text-[11px]"
+          style={{
+            borderTop: '1px solid var(--color-sidebar-border)',
+            color: 'var(--color-sidebar-text-muted)',
+          }}
+        >
           <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand" />
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: '#10B981' }}
+            />
             <span>Salvo localmente</span>
           </div>
-          <CheckCircle2 className="w-3.5 h-3.5 text-brand/70" />
+          <CheckCircle2 className="w-3.5 h-3.5" style={{ color: '#10B981', opacity: 0.7 }} />
         </div>
       </aside>
     </>

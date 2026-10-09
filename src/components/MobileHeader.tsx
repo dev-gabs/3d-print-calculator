@@ -41,7 +41,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
       <div className="flex items-center gap-2">
         <button
           onClick={onNewPiece}
-          className="inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-medium text-brand bg-brand/10 hover:bg-brand/15 rounded-md transition-colors"
+          className="inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-medium text-white bg-brand hover:bg-brand-hover rounded-md transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Nova</span>
