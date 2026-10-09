@@ -105,6 +105,7 @@ console.log('--- Running 3D Price Math & Storage Validation Tests ---');
   // Sum: 20 + 16 + 4 = 40!
   const state: ProductPricingState = {
     ...INITIAL_CALC_STATE,
+    pricingMethod: 'margin',
     mode: 'basic',
     desiredMarginPct: 40,
     enablePlatformFee: true,
@@ -136,6 +137,7 @@ console.log('--- Running 3D Price Math & Storage Validation Tests ---');
 {
   const state: ProductPricingState = {
     ...INITIAL_CALC_STATE,
+    pricingMethod: 'margin',
     enablePlatformFee: true,
     desiredMarginPct: 80,
     channelFeePct: 20, // 80% + 20% = 100% (denominator <= 0)
@@ -150,6 +152,7 @@ console.log('--- Running 3D Price Math & Storage Validation Tests ---');
 {
   const stateWithFeeDisabled: ProductPricingState = {
     ...INITIAL_CALC_STATE,
+    pricingMethod: 'margin',
     enablePlatformFee: false,
     channelFeePct: 20,
     desiredMarginPct: 40,
@@ -185,6 +188,7 @@ console.log('--- Running 3D Price Math & Storage Validation Tests ---');
 {
   const state: ProductPricingState = {
     ...INITIAL_CALC_STATE,
+    targetPrice: 0,
     weightGrams: 0,
     printHours: 0,
     printMinutes: 0,

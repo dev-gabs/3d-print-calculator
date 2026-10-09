@@ -21,6 +21,9 @@ import {
   DollarSign,
   Percent,
   Sliders,
+  Pencil,
+  CopyPlus,
+  X,
 } from 'lucide-react';
 import {
   CalculationResult,
@@ -30,6 +33,7 @@ import {
   Material,
   MultiMaterialEntry,
   ProductPricingState,
+  SavedProduct,
 } from '../../types/pricing';
 import { formatBRL, formatPercent, calculateMarginFromSalePrice } from '../../utils/pricingEngine';
 
@@ -37,10 +41,11 @@ interface CalculatorPageProps {
   state: ProductPricingState;
   calculation: CalculationResult;
   materials: Material[];
+  products: SavedProduct[];
   settings: GlobalSettings;
   onChange: (updater: (prev: ProductPricingState) => ProductPricingState) => void;
   onReset: () => void;
-  onSave: () => void;
+  onSave: (mode?: 'create_new' | 'overwrite') => void;
   onNewPiece: () => void;
   onOpenShare: () => void;
   onNavigateToMaterials: () => void;
@@ -50,6 +55,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
   state,
   calculation,
   materials,
+  products,
   settings,
   onChange,
   onReset,
@@ -58,7 +64,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
   onOpenShare,
   onNavigateToMaterials,
 }) => {
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState<string | false>(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   const channels: Array<{ id: ChannelId; label: string; defaultFee: number }> = [
     { id: 'shopee', label: 'Shopee', defaultFee: settings.channelFees.shopee ?? 20 },
@@ -85,9 +93,43 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
     }));
   };
 
+  // Detect if a saved product with the same name already exists in catalog
+  // Rule: Only triggers when an identical name exists in products list
+  const trimmedName = state.name.trim();
+  const existingProduct = products?.find((p) => {
+    if (!trimmedName) return false;
+    return p.state.name.trim().toLowerCase() === trimmedName.toLowerCase();
+  });
+
+  const isDuplicateName = Boolean(existingProduct);
+  const isExistingProduct = isDuplicateName;
+
   const handleSaveClick = () => {
-    onSave();
-    setSaveSuccess(true);
+    if (!trimmedName) {
+      setNameError('Dê um nome para a sua peça antes de salvar a precificação.');
+      // Focus name input if available
+      const inputEl = document.getElementById('input-prod-name');
+      if (inputEl) {
+        inputEl.focus();
+      }
+      return;
+    }
+
+    setNameError(null);
+
+    if (isDuplicateName) {
+      setConfirmModalOpen(true);
+    } else {
+      onSave('create_new');
+      setSaveSuccess('Criado com sucesso!');
+      setTimeout(() => setSaveSuccess(false), 2200);
+    }
+  };
+
+  const handleConfirmOverwrite = () => {
+    setConfirmModalOpen(false);
+    onSave('overwrite');
+    setSaveSuccess('Edição salva!');
     setTimeout(() => setSaveSuccess(false), 2200);
   };
 
@@ -306,12 +348,33 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   id="input-prod-name"
                   type="text"
                   value={state.name}
-                  onChange={(e) =>
-                    onChange((prev) => ({ ...prev, name: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setNameError(null);
+                    onChange((prev) => ({ ...prev, name: e.target.value }));
+                  }}
                   placeholder="Ex.: Suporte de Mesa para Headset"
-                  className="w-full bg-surface-raised text-txt px-3.5 py-2.5 rounded-xl border border-border focus:border-brand focus:ring-2 focus:ring-brand/15 text-[13px] outline-none transition-all placeholder:text-txt-muted/50"
+                  className={`w-full bg-surface-raised text-txt px-3.5 py-2.5 rounded-xl border text-[13px] outline-none transition-all placeholder:text-txt-muted/50 ${
+                    nameError
+                      ? 'border-[#E11D48] focus:border-[#E11D48] focus:ring-2 focus:ring-[#E11D48]/20'
+                      : isDuplicateName
+                        ? 'border-amber-500/60 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'
+                        : 'border-border focus:border-brand focus:ring-2 focus:ring-brand/15'
+                  }`}
                 />
+                {nameError && (
+                  <div className="mt-2 p-2.5 rounded-lg bg-[#E11D48]/10 border border-[#E11D48]/30 flex items-center gap-2 text-[12px] text-[#E11D48] dark:text-[#FB7185] animate-fadeIn">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-[#E11D48] dark:text-[#FB7185]" />
+                    <span className="font-medium">{nameError}</span>
+                  </div>
+                )}
+                {!nameError && isDuplicateName && (
+                  <div className="mt-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center gap-2 text-[12px] text-amber-600 dark:text-amber-400 animate-fadeIn">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
+                    <span>
+                      Já existe uma peça salva como <strong>"{trimmedName}"</strong>. Altere o nome para salvar como um novo produto ou use <strong>"Editar item"</strong> para sobrescrever.
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Material, Peso e Quantidade em grade balanceada */}
@@ -1505,16 +1568,35 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
 
             {/* ── AÇÕES PRIMÁRIAS E SECUNDÁRIAS ── */}
             <div className="flex flex-col gap-2.5">
-              {/* Botão principal de salvar */}
+              {/* Alerta de validação de nome obrigatório */}
+              {nameError && (
+                <div className="p-2.5 rounded-xl bg-[#E11D48]/10 border border-[#E11D48]/30 flex items-center gap-2 text-[12px] text-[#E11D48] dark:text-[#FB7185] animate-fadeIn">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-[#E11D48] dark:text-[#FB7185]" />
+                  <span className="font-medium leading-tight">O nome da peça é obrigatório para salvar.</span>
+                </div>
+              )}
+
+              {/* Botão principal de salvar / editar */}
               <button
                 type="button"
                 onClick={handleSaveClick}
-                className="w-full py-3 px-4 rounded-xl bg-brand hover:bg-brand-hover text-white font-semibold text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99]"
+                className={`w-full py-3 px-4 rounded-xl font-semibold text-[13px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99] text-white ${
+                  saveSuccess
+                    ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20'
+                    : isExistingProduct
+                      ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/25 ring-2 ring-amber-500/20'
+                      : 'bg-brand hover:bg-brand-hover shadow-brand/20'
+                }`}
               >
                 {saveSuccess ? (
                   <>
                     <Check className="w-4 h-4 text-white" />
-                    <span>Precificação salva com sucesso!</span>
+                    <span>{typeof saveSuccess === 'string' ? saveSuccess : 'Precificação salva com sucesso!'}</span>
+                  </>
+                ) : isExistingProduct ? (
+                  <>
+                    <Pencil className="w-4 h-4 text-white" />
+                    <span>Editar item</span>
                   </>
                 ) : (
                   <>
@@ -1559,6 +1641,73 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
           </div>
         </aside>
       </div>
+
+      {/* ── MODAL DE CONFIRMAÇÃO: ITEM JÁ EXISTENTE NO CATÁLOGO ── */}
+      {confirmModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-surface rounded-2xl border border-border max-w-md w-full p-6 shadow-2xl relative overflow-hidden animate-fadeIn">
+            {/* Top decorative accent bar */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-brand to-emerald-500" />
+
+            {/* Header com ícone e botão fechar */}
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmModalOpen(false)}
+                className="text-txt-muted hover:text-txt p-1.5 rounded-lg hover:bg-surface-raised transition-colors cursor-pointer"
+                aria-label="Fechar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Título & Descrição clara e concisa */}
+            <h3 className="font-display text-[18px] font-bold text-txt tracking-tight">
+              Item com o mesmo nome já cadastrado
+            </h3>
+            <p className="text-[13px] text-txt-muted mt-2 leading-relaxed">
+              O catálogo já possui um produto chamado{' '}
+              <strong className="text-amber-600 dark:text-amber-400 font-semibold">"{trimmedName || 'Peça Sem Título'}"</strong>.
+              Para evitar duplicidade de dados, você pode salvar as alterações no próprio item existente ou cancelar para alterar o nome da peça.
+            </p>
+
+            {/* Botões de Ação com Cores Fortes e Chamativas */}
+            <div className="flex flex-col gap-2.5 mt-6">
+              {/* Opção 1: Atualizar o existente (Ambar / Laranja Forte) */}
+              <button
+                type="button"
+                onClick={handleConfirmOverwrite}
+                className="w-full p-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[13px] flex items-center justify-between transition-all cursor-pointer shadow-md shadow-amber-600/20 active:scale-[0.99] group text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                    <Pencil className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-[13px] leading-tight">Salvar edição neste item</div>
+                    <div className="text-[11px] text-amber-100 font-normal leading-tight mt-0.5">
+                      Atualiza os custos e preços do produto já existente no catálogo
+                    </div>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-white/80 group-hover:translate-x-0.5 transition-transform shrink-0" />
+              </button>
+
+              {/* Opção 2: Cancelar para alterar o nome (Botão secundário de apoio) */}
+              <button
+                type="button"
+                onClick={() => setConfirmModalOpen(false)}
+                className="w-full py-3 px-4 rounded-xl bg-surface hover:bg-surface-raised border border-border text-txt font-semibold text-[13px] transition-colors cursor-pointer text-center"
+              >
+                Voltar e alterar nome da peça
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

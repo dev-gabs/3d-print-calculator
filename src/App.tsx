@@ -109,30 +109,47 @@ export default function App() {
     setActiveTab('calculator');
   };
 
-  const handleSaveProduct = () => {
+  const handleSaveProduct = (mode: 'create_new' | 'overwrite' = 'create_new') => {
     const now = new Date().toISOString();
-    const existingIndex = products.findIndex(
-      (p) => p.id === calcState.id || (calcState.id && p.id === calcState.id)
-    );
-
     const productName = calcState.name.trim() || 'Peça Sem Título';
     const updatedState = { ...calcState, name: productName };
 
+    // Find existing product with exact same name (case-insensitive)
+    const existingIndex = products.findIndex(
+      (p) => p.state.name.trim().toLowerCase() === productName.toLowerCase()
+    );
+
     let updatedProducts: SavedProduct[];
 
-    if (existingIndex >= 0) {
-      // Update existing
-      const existing = products[existingIndex];
-      const updatedItem: SavedProduct = {
-        ...existing,
-        state: updatedState,
-        calculation,
-        updatedAt: now,
-      };
-      updatedProducts = [...products];
-      updatedProducts[existingIndex] = updatedItem;
+    if (mode === 'overwrite' || existingIndex >= 0) {
+      // Overwrite the existing item if it exists, preventing duplicate data
+      if (existingIndex >= 0) {
+        const existing = products[existingIndex];
+        const targetId = existing.id;
+        const updatedItem: SavedProduct = {
+          ...existing,
+          state: { ...updatedState, id: targetId },
+          calculation,
+          updatedAt: now,
+        };
+        updatedProducts = [...products];
+        updatedProducts[existingIndex] = updatedItem;
+        setCalcState((prev) => ({ ...prev, id: targetId, name: productName }));
+      } else {
+        // Fallback: if not found, create new
+        const newId = 'prod-' + Date.now();
+        const newItem: SavedProduct = {
+          id: newId,
+          state: { ...updatedState, id: newId },
+          calculation,
+          createdAt: now,
+          updatedAt: now,
+        };
+        updatedProducts = [newItem, ...products];
+        setCalcState((prev) => ({ ...prev, id: newId, name: productName }));
+      }
     } else {
-      // Create new
+      // Create new item (only reached when name is unique)
       const newId = 'prod-' + Date.now();
       const newItem: SavedProduct = {
         id: newId,
@@ -265,6 +282,7 @@ export default function App() {
             state={calcState}
             calculation={calculation}
             materials={materials}
+            products={products}
             settings={settings}
             onChange={handleCalcChange}
             onReset={handleReset}
