@@ -100,9 +100,9 @@
     --color-brand-hover: #A5B4FC;
     --color-brand-subtle: rgba(99, 102, 241, 0.15);
 
-    --color-canvas: #060911;
-    --color-surface: #0E1424;
-    --color-surface-raised: #151D33;
+    --color-canvas: #0a0a0c;
+    --color-surface: #0d1014;
+    --color-surface-raised: #171a24;
 
     --color-border: rgba(255, 255, 255, 0.08);
     --color-border-subtle: rgba(255, 255, 255, 0.14);
@@ -133,6 +133,10 @@
     --color-sidebar-border: rgba(255, 255, 255, 0.06);
 
     --dot-color: rgba(129, 140, 248, 0.12);
+  }
+
+  html {
+    font-size: 110%;
   }
 
   html,

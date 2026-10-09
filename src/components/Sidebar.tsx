@@ -1,7 +1,16 @@
-import React from 'react';
-import { Calculator, Package, Disc, Sliders, CheckCircle2, Sun, Moon } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Calculator,
+  Package,
+  Disc,
+  Sliders,
+  CheckCircle2,
+  Sun,
+  Moon,
+  Gauge,
+} from 'lucide-react';
 
-export type ActiveTab = 'calculator' | 'products' | 'materials' | 'settings';
+export type ActiveTab = 'calculator' | 'products' | 'materials' | 'capacity' | 'settings';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -14,6 +23,9 @@ interface SidebarProps {
   onToggleTheme: () => void;
 }
 
+export const SIDEBAR_WIDTH_EXPANDED = 220;
+export const SIDEBAR_WIDTH_COLLAPSED = 62;
+
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onTabChange,
@@ -24,6 +36,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   theme,
   onToggleTheme,
 }) => {
+  const [hovered, setHovered] = useState(false);
+
   const navItems = [
     {
       id: 'calculator' as ActiveTab,
@@ -43,12 +57,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Disc,
       badge: materialsCount > 0 ? materialsCount : null,
     },
+    {
+      id: 'capacity' as ActiveTab,
+      label: 'Capacidade',
+      icon: Gauge,
+      badge: null,
+    },
   ];
 
   const handleSelect = (tab: ActiveTab) => {
     onTabChange(tab);
     if (onCloseMobile) onCloseMobile();
   };
+
+  // On desktop: collapsed by default, expand on hover
+  // On mobile: always expanded (drawer mode)
+  const isExpanded = hovered || isOpenMobile;
 
   return (
     <>
@@ -61,27 +85,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 w-[220px] flex flex-col justify-between z-50 transition-transform duration-200 ease-in-out ${
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className={`fixed top-0 bottom-0 left-0 flex flex-col justify-between z-50 ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
         style={{
+          width: isOpenMobile ? SIDEBAR_WIDTH_EXPANDED : (hovered ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED),
           backgroundColor: 'var(--color-sidebar-bg)',
           borderRight: '1px solid var(--color-sidebar-border)',
+          transition: 'width 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 200ms ease-in-out',
+          overflow: 'hidden',
         }}
       >
-        <div className="flex flex-col">
+        <div className="flex flex-col overflow-hidden">
           {/* Logo */}
           <div
-            className="h-14 px-5 flex items-center justify-between"
+            className="h-14 px-4 flex items-center gap-2 shrink-0"
             style={{ borderBottom: '1px solid var(--color-sidebar-border)' }}
           >
             <button
               onClick={() => handleSelect('calculator')}
-              className="flex items-center gap-2 text-left focus:outline-none"
+              className="flex items-center gap-2.5 text-left focus:outline-none overflow-hidden"
             >
-              {/* 3D Geometric Isometric Glyph */}
               <svg
-                className="w-4 h-4"
+                className="w-5 h-5 shrink-0"
                 style={{ color: '#818CF8' }}
                 fill="none"
                 stroke="currentColor"
@@ -95,26 +123,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <line x1="12" x2="12" y1="22.08" y2="12" />
               </svg>
               <span
-                className="font-semibold text-[14px] tracking-tight font-sans"
-                style={{ color: '#F1F5F9' }}
+                className="font-semibold text-[14px] tracking-tight font-sans whitespace-nowrap"
+                style={{
+                  color: '#F1F5F9',
+                  opacity: isExpanded ? 1 : 0,
+                  transition: 'opacity 150ms ease',
+                }}
               >
                 3D Price
               </span>
             </button>
-            <span
-              className="font-mono text-[10px] px-1.5 py-0.5 rounded"
-              style={{
-                color: 'var(--color-sidebar-text-muted)',
-                backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid var(--color-sidebar-border)',
-              }}
-            >
-              v2.4
-            </span>
+
+            {isExpanded && (
+              <span
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded shrink-0 ml-auto animate-fadeIn"
+                style={{
+                  color: 'var(--color-sidebar-text-muted)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px solid var(--color-sidebar-border)',
+                }}
+              >
+                v2.4
+              </span>
+            )}
           </div>
 
           {/* Navigation */}
-          <nav className="flex flex-col gap-1 p-3">
+          <nav className="flex flex-col gap-0.5 p-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -122,7 +157,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg font-medium text-[13px] transition-all text-left cursor-pointer border border-transparent"
+                  title={!isExpanded ? item.label : undefined}
+                  className={`w-full flex items-center ${
+                    !isExpanded ? 'justify-center' : 'justify-between'
+                  } px-3 py-2.5 rounded-lg font-medium text-[13px] transition-colors text-left cursor-pointer border border-transparent`}
                   style={{
                     backgroundColor: isActive
                       ? 'var(--color-sidebar-active-bg)'
@@ -146,7 +184,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <div className="flex items-center gap-2.5">
                     <Icon
-                      className="w-4 h-4"
+                      className="w-4 h-4 shrink-0"
                       style={{
                         color: isActive
                           ? '#A5B4FC'
@@ -154,9 +192,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       }}
                       strokeWidth={1.8}
                     />
-                    <span>{item.label}</span>
+                    {isExpanded && (
+                      <span className="whitespace-nowrap">{item.label}</span>
+                    )}
                   </div>
-                  {item.badge !== null && (
+                  {isExpanded && item.badge !== null && (
                     <span
                       className="text-[10px] font-mono px-1.5 py-0.5 rounded-full"
                       style={{
@@ -177,14 +217,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Divider */}
             <div
-              className="my-2"
+              className="my-1.5"
               style={{ borderTop: '1px solid var(--color-sidebar-border)' }}
             />
 
             {/* Settings */}
             <button
               onClick={() => handleSelect('settings')}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all text-left cursor-pointer border border-transparent"
+              title={!isExpanded ? 'Configurações' : undefined}
+              className={`w-full flex items-center ${
+                !isExpanded ? 'justify-center' : ''
+              } gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors text-left cursor-pointer border border-transparent`}
               style={{
                 backgroundColor:
                   activeTab === 'settings'
@@ -209,7 +252,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }}
             >
               <Sliders
-                className="w-4 h-4"
+                className="w-4 h-4 shrink-0"
                 style={{
                   color:
                     activeTab === 'settings'
@@ -218,19 +261,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 strokeWidth={1.8}
               />
-              <span>Configurações</span>
+              {isExpanded && <span>Configurações</span>}
             </button>
 
             {/* Divider */}
             <div
-              className="my-2"
+              className="my-1.5"
               style={{ borderTop: '1px solid var(--color-sidebar-border)' }}
             />
 
             {/* Theme toggle */}
             <button
               onClick={onToggleTheme}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors text-left border border-transparent"
+              title={!isExpanded ? (theme === 'dark' ? 'Tema claro' : 'Tema escuro') : undefined}
+              className={`w-full flex items-center ${
+                !isExpanded ? 'justify-center' : ''
+              } gap-2.5 px-3 py-2.5 rounded-md text-[13px] font-medium transition-colors text-left border border-transparent`}
               style={{ color: 'var(--color-sidebar-text-muted)' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)';
@@ -242,18 +288,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }}
             >
               {theme === 'dark' ? (
-                <Sun className="w-4 h-4" style={{ color: 'var(--color-sidebar-text-muted)' }} strokeWidth={1.8} />
+                <Sun className="w-4 h-4 shrink-0" style={{ color: 'var(--color-sidebar-text-muted)' }} strokeWidth={1.8} />
               ) : (
-                <Moon className="w-4 h-4" style={{ color: 'var(--color-sidebar-text-muted)' }} strokeWidth={1.8} />
+                <Moon className="w-4 h-4 shrink-0" style={{ color: 'var(--color-sidebar-text-muted)' }} strokeWidth={1.8} />
               )}
-              <span>{theme === 'dark' ? 'Tema claro' : 'Tema escuro'}</span>
+              {isExpanded && (
+                <span>{theme === 'dark' ? 'Tema claro' : 'Tema escuro'}</span>
+              )}
             </button>
           </nav>
         </div>
 
         {/* Footer */}
         <div
-          className="p-4 flex items-center justify-between text-[11px]"
+          className={`p-3 flex items-center ${
+            !isExpanded ? 'justify-center' : 'justify-between'
+          } text-[11px]`}
           style={{
             borderTop: '1px solid var(--color-sidebar-border)',
             color: 'var(--color-sidebar-text-muted)',
@@ -261,12 +311,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-1.5">
             <span
-              className="w-1.5 h-1.5 rounded-full"
+              className="w-1.5 h-1.5 rounded-full shrink-0"
               style={{ backgroundColor: '#10B981' }}
             />
-            <span>Salvo localmente</span>
+            {isExpanded && <span>Salvo localmente</span>}
           </div>
-          <CheckCircle2 className="w-3.5 h-3.5" style={{ color: '#10B981', opacity: 0.7 }} />
+          {isExpanded && (
+            <CheckCircle2 className="w-3.5 h-3.5" style={{ color: '#10B981', opacity: 0.7 }} />
+          )}
         </div>
       </aside>
     </>

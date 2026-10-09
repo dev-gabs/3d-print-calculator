@@ -3,6 +3,7 @@ import {
   Material,
   ProductPricingState,
   SavedProduct,
+  WorkshopCapacitySettings,
 } from '../types/pricing';
 import { calculatePricing } from '../utils/pricingEngine';
 
@@ -11,7 +12,34 @@ const KEYS = {
   MATERIALS: '3dprice_materials_v2',
   PRODUCTS: '3dprice_products_v2',
   LAST_CALC_STATE: '3dprice_last_calc_state_v2',
+  WORKSHOP_SETTINGS: '3dprice_workshop_settings_v2',
 };
+
+export const DEFAULT_WORKSHOP_SETTINGS: WorkshopCapacitySettings = {
+  printerCount: 1,
+  operationalHoursPerDay: 16,
+  operationalDaysPerMonth: 26,
+  monthlyTargetProfit: 2000.0,
+  monthlyFixedCosts: 0.0,
+};
+
+export function getStoredWorkshopSettings(): WorkshopCapacitySettings {
+  try {
+    const raw = localStorage.getItem(KEYS.WORKSHOP_SETTINGS);
+    if (!raw) return DEFAULT_WORKSHOP_SETTINGS;
+    return { ...DEFAULT_WORKSHOP_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return DEFAULT_WORKSHOP_SETTINGS;
+  }
+}
+
+export function saveStoredWorkshopSettings(settings: WorkshopCapacitySettings): void {
+  try {
+    localStorage.setItem(KEYS.WORKSHOP_SETTINGS, JSON.stringify(settings));
+  } catch (err) {
+    console.error('Failed to save workshop settings:', err);
+  }
+}
 
 export const DEFAULT_MATERIALS: Material[] = [
   {

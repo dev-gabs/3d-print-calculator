@@ -17,6 +17,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
     calculator: 'Calculadora',
     products: 'Peças Salvas',
     materials: 'Materiais',
+    capacity: 'Capacidade & Metas',
     settings: 'Configurações',
   };
 

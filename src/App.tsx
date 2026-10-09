@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar, ActiveTab } from './components/Sidebar';
+import { Sidebar, ActiveTab, SIDEBAR_WIDTH_COLLAPSED } from './components/Sidebar';
 import { MobileHeader } from './components/MobileHeader';
 import { OnboardingModal } from './components/OnboardingModal';
 import { ShareModal } from './components/ShareModal';
 import { CalculatorPage } from './features/calculator/CalculatorPage';
 import { ProductsPage } from './features/products/ProductsPage';
 import { MaterialsPage } from './features/materials/MaterialsPage';
+import { CapacityPage } from './features/capacity/CapacityPage';
 import { SettingsPage } from './features/settings/SettingsPage';
 import {
   GlobalSettings,
   Material,
   ProductPricingState,
   SavedProduct,
+  WorkshopCapacitySettings,
 } from './types/pricing';
 import {
   getStoredSettings,
@@ -22,6 +24,8 @@ import {
   saveStoredProducts,
   getStoredLastCalcState,
   saveStoredLastCalcState,
+  getStoredWorkshopSettings,
+  saveStoredWorkshopSettings,
   INITIAL_CALC_STATE,
 } from './services/storage';
 import { calculatePricing } from './utils/pricingEngine';
@@ -35,6 +39,9 @@ export default function App() {
   const [settings, setSettings] = useState<GlobalSettings>(() => getStoredSettings());
   const [materials, setMaterials] = useState<Material[]>(() => getStoredMaterials());
   const [products, setProducts] = useState<SavedProduct[]>(() => getStoredProducts());
+  const [workshopSettings, setWorkshopSettings] = useState<WorkshopCapacitySettings>(() =>
+    getStoredWorkshopSettings()
+  );
   const [calcState, setCalcState] = useState<ProductPricingState>(() =>
     getStoredLastCalcState()
   );
@@ -240,6 +247,11 @@ export default function App() {
     saveStoredSettings(newSettings);
   };
 
+  const handleUpdateWorkshopSettings = (newSettings: WorkshopCapacitySettings) => {
+    setWorkshopSettings(newSettings);
+    saveStoredWorkshopSettings(newSettings);
+  };
+
   const handleReloadAllData = () => {
     setSettings(getStoredSettings());
     setMaterials(getStoredMaterials());
@@ -263,7 +275,6 @@ export default function App() {
         onNewPiece={handleNewPiece}
       />
 
-      {/* Sidebar Desktop e Drawer Mobile */}
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -275,8 +286,18 @@ export default function App() {
         onToggleTheme={toggleTheme}
       />
 
-      {/* Content Area with exact desktop padding for sidebar */}
-      <div className="lg:pl-[220px] min-h-screen transition-all">
+      {/* Content Area — sidebar is collapsed by default, so content offsets by collapsed width */}
+      <style>{`
+        @media (min-width: 1024px) {
+          #main-content {
+            padding-left: ${SIDEBAR_WIDTH_COLLAPSED}px;
+          }
+        }
+      `}</style>
+      <div
+        id="main-content"
+        className="min-h-screen"
+      >
         {activeTab === 'calculator' && (
           <CalculatorPage
             state={calcState}
@@ -312,6 +333,15 @@ export default function App() {
             onAddMaterial={handleAddMaterial}
             onUpdateMaterial={handleUpdateMaterial}
             onDeleteMaterial={handleDeleteMaterial}
+          />
+        )}
+
+        {activeTab === 'capacity' && (
+          <CapacityPage
+            products={products}
+            settings={workshopSettings}
+            onUpdateSettings={handleUpdateWorkshopSettings}
+            onNavigateToCalculator={() => setActiveTab('calculator')}
           />
         )}
 
