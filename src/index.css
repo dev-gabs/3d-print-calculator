@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #2F6B4A;
+  --color-brand-hover: #26573C;
+  --color-brand-light: #EAF3ED;
+  --color-brand-surface: #F4FAF6;
+  --color-canvas: #F6F6F3;
+  --color-surface: #FFFFFF;
+  --color-border: #E3E6E2;
+  --color-txt: #171A18;
+  --color-txt-muted: #707570;
+
+  --font-display: "Space Grotesk", "Geist", sans-serif;
+  --font-sans: "Geist", "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+@layer base {
+  body {
+    background-color: #F6F6F3;
+    color: #171A18;
+    font-family: var(--font-sans);
+  }
+}
+
+/* Custom styled range slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 9999px;
+  background: #E3E6E2;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2F6B4A;
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #26573C;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2F6B4A;
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Remove number input spinner arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
