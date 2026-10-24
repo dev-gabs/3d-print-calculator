@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { NumberInput, formatNumberBR } from '../../components/NumberInput';
+import React, { useEffect, useState } from 'react';
 import {
   RotateCcw,
   Check,
@@ -35,7 +36,7 @@ import {
   ProductPricingState,
   SavedProduct,
 } from '../../types/pricing';
-import { formatBRL, formatPercent, calculateMarginFromSalePrice } from '../../utils/pricingEngine';
+import { formatBRL, formatPercent, calculateMarginFromSalePrice, getMaxMarginPct, MIN_MARGIN_PCT, formatNumber } from '../../utils/pricingEngine';
 
 interface CalculatorPageProps {
   state: ProductPricingState;
@@ -67,6 +68,41 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
   const [saveSuccess, setSaveSuccess] = useState<string | false>(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [highlightCommission, setHighlightCommission] = useState(false);
+
+  // Faixa de comissão dos marketplaces mais usados, para o lembrete quando a comissão está desligada.
+  const marketplaceFees = [settings.channelFees.shopee ?? 20, settings.channelFees.mercadolivre ?? 19];
+  const feeRangeLabel =
+    Math.min(...marketplaceFees) === Math.max(...marketplaceFees)
+      ? `${formatNumber(Math.max(...marketplaceFees))}%`
+      : `${formatNumber(Math.min(...marketplaceFees))}% a ${formatNumber(Math.max(...marketplaceFees))}%`;
+
+  useEffect(() => {
+    if (!confirmModalOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setConfirmModalOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [confirmModalOpen]);
+
+  // Celular: barra fixa com o preço enquanto o painel de resultado está fora da tela.
+  const [resultInView, setResultInView] = useState(false);
+  useEffect(() => {
+    const el = document.getElementById('painel-resultado');
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const obs = new IntersectionObserver(([entry]) => setResultInView(entry.isIntersecting), {
+      threshold: 0.15,
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const goToCommission = () => {
+    document.getElementById('secao-comissao')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setHighlightCommission(true);
+    setTimeout(() => setHighlightCommission(false), 1800);
+  };
 
   const channels: Array<{ id: ChannelId; label: string; defaultFee: number }> = [
     { id: 'shopee', label: 'Shopee', defaultFee: settings.channelFees.shopee ?? 20 },
@@ -101,8 +137,11 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
     return p.state.name.trim().toLowerCase() === trimmedName.toLowerCase();
   });
 
-  const isDuplicateName = Boolean(existingProduct);
-  const isExistingProduct = isDuplicateName;
+  // Editando a própria peça salva (mesmo id) não é duplicidade; só avisa quando o nome
+  // pertence a OUTRA peça do catálogo.
+  const isEditingSaved = Boolean(existingProduct && state.id && existingProduct.id === state.id);
+  const isDuplicateName = Boolean(existingProduct) && !isEditingSaved;
+  const isExistingProduct = Boolean(existingProduct);
 
   const handleSaveClick = () => {
     if (!trimmedName) {
@@ -117,7 +156,11 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
 
     setNameError(null);
 
-    if (isDuplicateName) {
+    if (isEditingSaved) {
+      onSave('overwrite');
+      setSaveSuccess('Alterações salvas!');
+      setTimeout(() => setSaveSuccess(false), 2200);
+    } else if (isDuplicateName) {
       setConfirmModalOpen(true);
     } else {
       onSave('create_new');
@@ -195,7 +238,17 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
   // Adaptive max margin based on active channel fees & taxes
   const currentChannelPct = state.enablePlatformFee ? (state.channelFeePct || 0) : 0;
   const currentTaxPct = state.mode === 'advanced' ? (state.taxRatePct || 0) : 0;
-  const maxAllowedMargin = Math.floor(Math.max(10, 99.5 - currentChannelPct - currentTaxPct));
+  const maxAllowedMargin = getMaxMarginPct(currentChannelPct, currentTaxPct);
+  const clampMargin = (m: number) => Math.min(maxAllowedMargin, Math.max(MIN_MARGIN_PCT, Math.round(m)));
+
+  // Mantém a margem desejada sempre dentro do teto atual (ex.: ao ligar a comissão do marketplace),
+  // para que seção, controle deslizante e resultado mostrem o mesmo número.
+  useEffect(() => {
+    if (state.desiredMarginPct > maxAllowedMargin) {
+      onChange((prev) => ({ ...prev, desiredMarginPct: maxAllowedMargin }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxAllowedMargin, state.desiredMarginPct]);
   const availablePresets = [20, 30, 40, 50, 60, 70, 80, 90].filter((p) => p <= maxAllowedMargin);
 
   // Target Sale Price handler: unconstrained, adaptive calculation of profit and margin
@@ -207,14 +260,17 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
     const fixedFee = (state.mode === 'advanced' && state.enablePlatformFee) ? (state.fixedChannelFee || 0) : 0;
 
     const { marginPct } = calculateMarginFromSalePrice(newPrice, cost, channelPct, taxPct, fixedFee);
-    const calculatedMargin = Math.round(marginPct * 10) / 10;
 
     onChange((prev) => ({
       ...prev,
       targetPrice: newPrice,
-      desiredMarginPct: calculatedMargin,
+      // Guarda a margem equivalente (dentro dos limites) para a troca para "Por margem" ficar coerente.
+      desiredMarginPct: newPrice > 0 ? clampMargin(marginPct) : prev.desiredMarginPct,
     }));
   };
+
+  // No modo "Preço final", o valor exibido é o que a pessoa digitou, não uma recomendação.
+  const isUserPrice = state.pricingMethod !== 'margin' && Boolean(state.targetPrice && state.targetPrice > 0);
 
   // Composition breakdown percentages for visual bar (Used in BOTH Basic & Advanced mode)
   const price = calculation.recommendedPrice || 1;
@@ -229,7 +285,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
   const profitBarPct = Math.max(0, 100 - matBarPct - operBarPct - laborBarPct - extrasBarPct - taxesBarPct);
 
   return (
-    <div className="max-w-[1260px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-9">
+    <div className="max-w-[1260px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-9 lg:pb-9">
       {/* ── Page Header: Fintech Dashboard Style ── */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-7 border-b border-border/80">
         <div>
@@ -371,7 +427,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   <div className="mt-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center gap-2 text-[12px] text-amber-600 dark:text-amber-400 animate-fadeIn">
                     <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
                     <span>
-                      Já existe uma peça salva como <strong>"{trimmedName}"</strong>. Altere o nome para salvar como um novo produto ou use <strong>"Editar item"</strong> para sobrescrever.
+                      Já existe outra peça salva como <strong>"{trimmedName}"</strong>. Mude o nome para criar uma nova ou use <strong>"Substituir peça"</strong> para atualizá-la.
                     </span>
                   </div>
                 )}
@@ -437,11 +493,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                     Peso da peça
                   </label>
                   <div className="relative flex items-center">
-                    <input
+                    <NumberInput
                       id="input-weight"
-                      type="number"
                       min="0"
-                      step="1"
                       value={state.weightGrams === 0 ? '' : state.weightGrams}
                       onChange={(e) =>
                         onChange((prev) => ({
@@ -449,7 +503,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           weightGrams: parseFloat(e.target.value) || 0,
                         }))
                       }
-                      placeholder="146"
+                      placeholder="0"
                       className="w-full bg-surface-raised text-txt px-3.5 py-2.5 pr-8 rounded-xl border border-border focus:border-brand focus:ring-2 focus:ring-brand/15 text-[13px] font-mono outline-none transition-all"
                     />
                     <span className="absolute right-3 text-[12px] font-mono text-txt-muted pointer-events-none">
@@ -467,11 +521,10 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                     Quantidade
                   </label>
                   <div className="relative flex items-center">
-                    <input
+                    <NumberInput
+                      decimals={0}
                       id="input-quantity"
-                      type="number"
                       min="1"
-                      step="1"
                       value={state.batchUnits || 1}
                       onChange={(e) =>
                         onChange((prev) => ({
@@ -513,8 +566,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                     </div>
                     {state.enableWaste && (
                       <div className="flex items-center gap-2 self-end sm:self-auto">
-                        <input
-                          type="number"
+                        <NumberInput
+                          decimals={0}
                           min="1"
                           max="50"
                           value={state.wastePct}
@@ -558,8 +611,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                             ))}
                           </select>
                           <div className="flex items-center gap-1">
-                            <input
-                              type="number"
+                            <NumberInput
                               min="1"
                               value={entry.weightGrams || ''}
                               onChange={(e) =>
@@ -567,7 +619,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                   weightGrams: parseFloat(e.target.value) || 0,
                                 })
                               }
-                              placeholder="20"
+                              placeholder="0"
                               className="w-16 px-2 py-1 bg-surface border border-border rounded-lg text-right font-mono text-[12px] outline-none"
                             />
                             <span className="text-[11px] font-mono text-txt-muted">g</span>
@@ -625,9 +677,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-2">
                   <div className="relative flex items-center w-28">
-                    <input
+                    <NumberInput
                       id="input-print-hours"
-                      type="number"
                       min="0"
                       value={state.printHours === 0 ? '' : state.printHours}
                       onChange={(e) =>
@@ -636,7 +687,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           printHours: parseFloat(e.target.value) || 0,
                         }))
                       }
-                      placeholder="4"
+                      placeholder="0"
                       className="w-full bg-surface-raised text-txt px-3.5 py-2.5 pr-8 rounded-xl border border-border focus:border-brand focus:ring-2 focus:ring-brand/15 text-[13px] font-mono outline-none text-right transition-all"
                     />
                     <span className="absolute right-3 text-[12px] font-mono text-txt-muted pointer-events-none">
@@ -645,9 +696,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   </div>
                   <span className="text-txt-muted text-[13px] font-medium">e</span>
                   <div className="relative flex items-center w-28">
-                    <input
+                    <NumberInput
+                      decimals={0}
                       id="input-print-mins"
-                      type="number"
                       min="0"
                       max="59"
                       value={state.printMinutes === 0 ? '' : state.printMinutes}
@@ -657,7 +708,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           printMinutes: parseFloat(e.target.value) || 0,
                         }))
                       }
-                      placeholder="18"
+                      placeholder="0"
                       className="w-full bg-surface-raised text-txt px-3.5 py-2.5 pr-11 rounded-xl border border-border focus:border-brand focus:ring-2 focus:ring-brand/15 text-[13px] font-mono outline-none text-right transition-all"
                     />
                     <span className="absolute right-3 text-[12px] font-mono text-txt-muted pointer-events-none">
@@ -727,8 +778,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
           {/* ── 03: Preço de Venda ou Margem de Lucro ── */}
           <section className="bg-surface rounded-2xl border border-border p-5 sm:p-6 shadow-xs hover:border-border-subtle transition-colors">
             {/* Section Header */}
-            <div className="flex items-center justify-between gap-3 mb-5">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <div className="flex items-center gap-3 min-w-0 flex-1 basis-64">
                 <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center text-brand shrink-0">
                   <TrendingUp className="w-4 h-4" />
                 </div>
@@ -750,8 +801,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
               {/* Pill em Destaque com Valor da Margem */}
               <div className="px-3.5 py-1 rounded-full bg-brand-subtle text-brand border border-brand/20 font-mono text-[14px] font-bold shrink-0">
                 {state.pricingMethod === 'margin'
-                  ? `${state.desiredMarginPct}% margem`
-                  : `${formatPercent(calculation.realMarginPct, 1)} margem`}
+                  ? `${formatPercent(Math.min(state.desiredMarginPct, maxAllowedMargin))} margem`
+                  : `${formatPercent(calculation.realMarginPct)} margem`}
               </div>
             </div>
 
@@ -777,7 +828,13 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 </button>
                 <button
                   type="button"
-                  onClick={() => onChange((prev) => ({ ...prev, pricingMethod: 'margin' }))}
+                  onClick={() =>
+                    onChange((prev) => ({
+                      ...prev,
+                      pricingMethod: 'margin',
+                      desiredMarginPct: clampMargin(prev.desiredMarginPct || 40),
+                    }))
+                  }
                   className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${state.pricingMethod === 'margin'
                       ? 'bg-surface text-txt font-semibold shadow-xs border border-border/80'
                       : 'text-txt-muted hover:text-txt'
@@ -796,21 +853,19 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                         Preço de venda desejado
                       </label>
                       <span className="text-[12px] text-txt-muted">
-                        Informe o valor que você quer cobrar pelo produto final.
+                        Informe o valor que você quer cobrar. Vazio, usa o preço recomendado pela margem.
                       </span>
                     </div>
                     <div className="relative flex items-center w-40">
                       <span className="absolute left-3 text-[13px] font-mono font-medium text-txt-muted pointer-events-none">
                         R$
                       </span>
-                      <input
+                      <NumberInput
                         id="input-target-price"
-                        type="number"
-                        min="0"
-                        step="0.5"
-                        value={state.targetPrice !== undefined ? state.targetPrice : (calculation.recommendedPrice > 0 ? Number(calculation.recommendedPrice.toFixed(2)) : '')}
+                        money
+                        value={state.targetPrice ? state.targetPrice : ''}
                         onChange={(e) => handleTargetPriceChange(e.target.value)}
-                        placeholder="49,90"
+                        placeholder={calculation.recommendedPrice > 0 ? formatNumberBR(calculation.recommendedPrice, 2, true) : '0,00'}
                         className="w-full bg-surface text-txt pl-10 pr-3.5 py-2.5 rounded-xl border border-border focus:border-brand focus:ring-2 focus:ring-brand/15 text-[15px] font-mono font-bold text-right outline-none shadow-xs"
                       />
                     </div>
@@ -833,7 +888,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                             : undefined
                         }
                       >
-                        {formatPercent(calculation.realMarginPct, 1)}
+                        {formatPercent(calculation.realMarginPct)}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -880,21 +935,20 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                         Personalizada:
                       </label>
                       <div className="relative flex items-center w-22">
-                        <input
+                        <NumberInput
                           id="custom-margin-input"
-                          type="number"
+                          decimals={1}
                           min="1"
                           max={maxAllowedMargin}
-                          step="1"
                           value={state.desiredMarginPct || ''}
                           onChange={(e) => {
                             const val = parseFloat(e.target.value);
                             onChange((prev) => ({
                               ...prev,
-                              desiredMarginPct: isNaN(val) ? 0 : Math.min(maxAllowedMargin, Math.max(1, val)),
+                              desiredMarginPct: isNaN(val) ? 0 : Math.min(maxAllowedMargin, val),
                             }));
                           }}
-                          placeholder="40"
+                          placeholder="0"
                           className="w-full bg-surface-raised text-txt px-2.5 py-1.5 pr-6 rounded-lg border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] font-mono font-bold text-right outline-none"
                         />
                         <span className="absolute right-2 text-[11px] font-mono text-txt-muted pointer-events-none">
@@ -909,7 +963,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                     <input
                       id="range-margin"
                       type="range"
-                      min="5"
+                      min={MIN_MARGIN_PCT}
                       max={maxAllowedMargin}
                       step="1"
                       value={Math.min(maxAllowedMargin, state.desiredMarginPct || 40)}
@@ -922,7 +976,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                       className="w-full cursor-pointer"
                     />
                     <div className="flex justify-between text-[11px] font-mono text-txt-muted">
-                      <span>Mínimo (5%)</span>
+                      <span>Mínimo ({MIN_MARGIN_PCT}%)</span>
                       <span>Média (40%)</span>
                       <span>Teto auto-adaptativo ({maxAllowedMargin}%)</span>
                     </div>
@@ -968,10 +1022,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           <span className="font-medium text-txt">Valor da sua hora de trabalho:</span>
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono text-txt-muted">R$</span>
-                            <input
-                              type="number"
+                            <NumberInput
                               min="0"
-                              step="5"
                               value={state.laborHourlyRate ?? settings.laborHourlyRate}
                               onChange={(e) =>
                                 onChange((prev) => ({
@@ -991,8 +1043,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                               Fatiamento / Mesa
                             </label>
                             <div className="flex items-center">
-                              <input
-                                type="number"
+                              <NumberInput
+                                decimals={0}
                                 min="0"
                                 value={state.prepMinutes || ''}
                                 onChange={(e) =>
@@ -1001,7 +1053,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                     prepMinutes: parseInt(e.target.value, 10) || 0,
                                   }))
                                 }
-                                placeholder="10"
+                                placeholder="0"
                                 className="w-full bg-surface px-2.5 py-1.5 border border-border rounded-lg text-right font-mono text-[12px]"
                               />
                               <span className="ml-1 text-txt-muted font-mono text-[11px]">min</span>
@@ -1013,8 +1065,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                               Pós-processamento
                             </label>
                             <div className="flex items-center">
-                              <input
-                                type="number"
+                              <NumberInput
+                                decimals={0}
                                 min="0"
                                 value={state.finishMinutes || ''}
                                 onChange={(e) =>
@@ -1023,7 +1075,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                                     finishMinutes: parseInt(e.target.value, 10) || 0,
                                   }))
                                 }
-                                placeholder="15"
+                                placeholder="0"
                                 className="w-full bg-surface px-2.5 py-1.5 border border-border rounded-lg text-right font-mono text-[12px]"
                               />
                               <span className="ml-1 text-txt-muted font-mono text-[11px]">min</span>
@@ -1035,8 +1087,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                               Montagem
                             </label>
                             <div className="flex items-center">
-                              <input
-                                type="number"
+                              <NumberInput
+                                decimals={0}
                                 min="0"
                                 value={state.assemblyMinutes || ''}
                                 onChange={(e) =>
@@ -1093,17 +1145,15 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                             />
                             <div className="flex items-center gap-1">
                               <span className="font-mono text-[11px] text-txt-muted">R$</span>
-                              <input
-                                type="number"
+                              <NumberInput
                                 min="0"
-                                step="0.5"
                                 value={extra.costPerUnit || ''}
                                 onChange={(e) =>
                                   handleUpdateExtraCost(extra.id, {
                                     costPerUnit: parseFloat(e.target.value) || 0,
                                   })
                                 }
-                                placeholder="2.50"
+                                placeholder="0,00"
                                 className="w-20 px-2 py-1 bg-surface border border-border rounded-lg text-right font-mono text-[12px] outline-none"
                               />
                             </div>
@@ -1138,8 +1188,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                         <label className="block text-txt-muted mb-1 font-medium">
                           Desconto de volume no atacado (%)
                         </label>
-                        <input
-                          type="number"
+                        <NumberInput
                           min="0"
                           max="50"
                           value={state.quantityDiscountPct || ''}
@@ -1171,7 +1220,16 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
           </section>
 
           {/* ── 04: Comissão de plataforma de e-commerce (Com Toggle Habilitar/Desabilitar) ── */}
-          <section className="bg-surface rounded-2xl border border-border p-5 sm:p-6 shadow-xs hover:border-border-subtle transition-colors">
+          <section
+            id="secao-comissao"
+            className={`bg-surface rounded-2xl border p-5 sm:p-6 shadow-xs transition-all duration-300 scroll-mt-20 ${
+              highlightCommission
+                ? 'border-brand ring-4 ring-brand/20'
+                : state.enablePlatformFee
+                  ? 'border-border hover:border-border-subtle'
+                  : 'border-brand/30 hover:border-brand/50'
+            }`}
+          >
             {/* Section Header with Enable/Disable Toggle */}
             <div className="flex items-start sm:items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-3">
@@ -1223,16 +1281,26 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
 
             {/* Content: Visible when enabled, Clean placeholder when disabled */}
             {!state.enablePlatformFee ? (
-              <div className="p-4 rounded-xl bg-canvas border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[12px] text-txt-muted">
-                <span>
-                  Comissão desativada. O cálculo assume venda direta sem taxas de marketplace (0%).
-                </span>
+              <div className="p-4 rounded-xl bg-brand-subtle/60 border border-brand/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[12px]">
+                <div className="flex items-start gap-2.5">
+                  <span className="relative flex w-2 h-2 mt-1.5 shrink-0" aria-hidden="true">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-brand opacity-60 animate-ping" />
+                    <span className="relative inline-flex w-2 h-2 rounded-full bg-brand" />
+                  </span>
+                  <p className="text-txt leading-relaxed">
+                    <strong className="font-semibold">Vende na Shopee ou no Mercado Livre?</strong>{' '}
+                    <span className="text-txt-muted">
+                      A comissão pode levar de {feeRangeLabel} do preço. Hoje o cálculo considera venda direta, sem comissão.
+                    </span>
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={() => onChange((prev) => ({ ...prev, enablePlatformFee: true }))}
-                  className="text-brand font-semibold hover:underline cursor-pointer self-start sm:self-auto text-[12px]"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand hover:bg-brand-hover text-white font-semibold text-[12px] cursor-pointer self-start sm:self-auto shrink-0 transition-colors"
                 >
-                  Habilitar taxa de marketplace
+                  <Store className="w-3.5 h-3.5" />
+                  <span>Incluir comissão</span>
                 </button>
               </div>
             ) : (
@@ -1267,12 +1335,10 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 <div className="flex items-center gap-3 text-[13px] text-txt-muted mt-1">
                   <span className="font-medium">Comissão do canal selecionado:</span>
                   <div className="relative flex items-center w-24">
-                    <input
+                    <NumberInput
                       id="input-channel-tax"
-                      type="number"
                       min="0"
                       max="90"
-                      step="0.5"
                       value={state.channelFeePct === 0 ? '' : state.channelFeePct}
                       onChange={(e) =>
                         onChange((prev) => ({
@@ -1280,7 +1346,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                           channelFeePct: parseFloat(e.target.value) || 0,
                         }))
                       }
-                      placeholder="20"
+                      placeholder="0"
                       className="w-full bg-surface-raised text-txt px-3 py-1.5 pr-6 rounded-lg border border-border focus:border-brand focus:ring-1 focus:ring-brand/30 text-[13px] font-mono outline-none text-right transition-colors font-semibold"
                     />
                     <span className="absolute right-2 text-[12px] font-mono text-txt-muted pointer-events-none">
@@ -1300,10 +1366,8 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                         <span className="absolute left-3 text-[12px] font-mono text-txt-muted">
                           R$
                         </span>
-                        <input
-                          type="number"
+                        <NumberInput
                           min="0"
-                          step="0.5"
                           value={state.fixedChannelFee || ''}
                           onChange={(e) =>
                             onChange((prev) => ({
@@ -1322,11 +1386,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                         Imposto sobre NF-e (ex: Simples Nacional)
                       </label>
                       <div className="relative flex items-center">
-                        <input
-                          type="number"
+                        <NumberInput
                           min="0"
                           max="30"
-                          step="0.5"
                           value={state.taxRatePct || ''}
                           onChange={(e) =>
                             onChange((prev) => ({
@@ -1376,7 +1438,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
         </main>
 
         {/* ── COLUNA DIREITA: O RESULTADO COMO ELEMENTO HERO INDISCUTÍVEL (iBanko Inspired) ── */}
-        <aside className="lg:col-span-5 lg:sticky lg:top-7">
+        <aside id="painel-resultado" className="lg:col-span-5 lg:sticky lg:top-7 scroll-mt-16">
           <div className="bg-surface rounded-2xl border border-border p-6 sm:p-7 flex flex-col shadow-sm relative overflow-hidden">
             {/* Top accent decorative bar */}
             <div className="absolute top-0 left-0 right-0 h-1 opacity-90" style={{ background: 'linear-gradient(to right, #6366F1, #7C3AED, #818CF8)' }} />
@@ -1422,7 +1484,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
             {/* ── BLOCO HERO PRINCIPAL: PREÇO RECOMENDADO ── */}
             <div className="py-6 flex flex-col">
               <span className="font-mono text-[11px] uppercase tracking-wider text-txt-muted font-semibold">
-                {state.batchUnits > 1 ? 'PREÇO UNITÁRIO RECOMENDADO' : 'PREÇO RECOMENDADO'}
+                {isUserPrice
+                  ? state.batchUnits > 1 ? 'Seu preço unitário' : 'Seu preço de venda'
+                  : state.batchUnits > 1 ? 'Preço unitário recomendado' : 'Preço recomendado'}
               </span>
 
               {/* VALOR HERO ENORME E EXPRESSIVO */}
@@ -1476,6 +1540,24 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Lembrete: comissão de marketplace desligada */}
+            {!state.enablePlatformFee && calculation.recommendedPrice > 0 && (
+              <button
+                type="button"
+                onClick={goToCommission}
+                className="-mt-3 mb-6 w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border border-dashed border-brand/40 bg-brand-subtle/40 hover:bg-brand-subtle text-left text-[12px] transition-colors cursor-pointer group"
+              >
+                <span className="flex items-center gap-2 text-txt-muted">
+                  <Store className="w-3.5 h-3.5 text-brand shrink-0" />
+                  <span>
+                    Sem comissão de marketplace.{' '}
+                    <span className="text-txt font-medium">Vai vender na Shopee ou no ML?</span>
+                  </span>
+                </span>
+                <span className="text-brand font-semibold whitespace-nowrap group-hover:underline">Incluir</span>
+              </button>
+            )}
 
             {/* ── GRÁFICO: BARRA VISUAL DE COMPOSIÇÃO DE CUSTOS (Visível no Básico E no Avançado) ── */}
             {calculation.recommendedPrice > 0 && (
@@ -1584,7 +1666,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   saveSuccess
                     ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20'
                     : isExistingProduct
-                      ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/25 ring-2 ring-amber-500/20'
+                      ? 'bg-sky-600 hover:bg-sky-700 shadow-sky-600/25'
                       : 'bg-brand hover:bg-brand-hover shadow-brand/20'
                 }`}
               >
@@ -1596,7 +1678,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                 ) : isExistingProduct ? (
                   <>
                     <Pencil className="w-4 h-4 text-white" />
-                    <span>Editar item</span>
+                    <span>{isEditingSaved ? 'Salvar alterações' : 'Substituir peça'}</span>
                   </>
                 ) : (
                   <>
@@ -1642,12 +1724,51 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
         </aside>
       </div>
 
+      {/* ── BARRA FIXA (CELULAR): preço sempre à vista enquanto preenche ── */}
+      <div
+        className={`lg:hidden fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur-md px-4 pt-3 transition-transform duration-200 ${
+          resultInView ? 'translate-y-full' : 'translate-y-0'
+        }`}
+        style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+        aria-hidden={resultInView}
+      >
+        <button
+          type="button"
+          onClick={() =>
+            document.getElementById('painel-resultado')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+          className="w-full flex items-center justify-between gap-3 text-left cursor-pointer"
+          tabIndex={resultInView ? -1 : 0}
+        >
+          <div className="min-w-0">
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-txt-muted font-semibold">
+              {isUserPrice ? 'Seu preço de venda' : 'Preço recomendado'}
+            </span>
+            <span className="block font-display text-[24px] font-bold text-txt leading-tight tabular-nums">
+              {formatBRL(calculation.recommendedPrice)}
+            </span>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="text-right">
+              <span className="block text-[11px] text-txt-muted">Lucro</span>
+              <span className={`block font-mono text-[14px] font-bold tabular-nums ${calculation.profit < 0 ? 'text-semantic-danger' : 'text-brand'}`}>
+                {formatBRL(calculation.profit)}
+              </span>
+            </div>
+            <span className={`font-mono text-[12px] font-semibold px-2 py-1 rounded-lg ${calculation.profit < 0 ? 'bg-semantic-danger-bg text-semantic-danger' : 'bg-brand-subtle text-brand'}`}>
+              {formatPercent(calculation.realMarginPct)}
+            </span>
+            <ChevronRight className="w-4 h-4 text-txt-muted -rotate-90" />
+          </div>
+        </button>
+      </div>
+
       {/* ── MODAL DE CONFIRMAÇÃO: ITEM JÁ EXISTENTE NO CATÁLOGO ── */}
       {confirmModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-surface rounded-2xl border border-border max-w-md w-full p-6 shadow-2xl relative overflow-hidden animate-fadeIn">
             {/* Top decorative accent bar */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-brand to-emerald-500" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-brand to-sky-500" />
 
             {/* Header com ícone e botão fechar */}
             <div className="flex items-start justify-between gap-4 mb-4">
@@ -1680,7 +1801,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
               <button
                 type="button"
                 onClick={handleConfirmOverwrite}
-                className="w-full p-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[13px] flex items-center justify-between transition-all cursor-pointer shadow-md shadow-amber-600/20 active:scale-[0.99] group text-left"
+                className="w-full p-3.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-[13px] flex items-center justify-between transition-all cursor-pointer shadow-md shadow-sky-600/20 active:scale-[0.99] group text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
@@ -1688,7 +1809,7 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({
                   </div>
                   <div>
                     <div className="font-bold text-[13px] leading-tight">Salvar edição neste item</div>
-                    <div className="text-[11px] text-amber-100 font-normal leading-tight mt-0.5">
+                    <div className="text-[11px] text-sky-100 font-normal leading-tight mt-0.5">
                       Atualiza os custos e preços do produto já existente no catálogo
                     </div>
                   </div>

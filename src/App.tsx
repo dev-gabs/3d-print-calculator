@@ -27,6 +27,7 @@ import {
   getStoredWorkshopSettings,
   saveStoredWorkshopSettings,
   INITIAL_CALC_STATE,
+  SEED_PRODUCT_ID,
 } from './services/storage';
 import { calculatePricing } from './utils/pricingEngine';
 
@@ -57,6 +58,11 @@ export default function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Ao trocar de tela, começa do topo (sem herdar a rolagem da tela anterior).
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [activeTab]);
+
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
@@ -84,6 +90,7 @@ export default function App() {
   const handleReset = () => {
     setCalcState({
       ...INITIAL_CALC_STATE,
+      id: products.some((p) => p.id === SEED_PRODUCT_ID) ? SEED_PRODUCT_ID : undefined,
       name: 'Suporte de Mesa para Headset',
       weightGrams: 146,
       printHours: 4,
@@ -101,6 +108,7 @@ export default function App() {
   const handleNewPiece = () => {
     setCalcState({
       ...INITIAL_CALC_STATE,
+      id: undefined,
       name: '',
       weightGrams: 0,
       printHours: 0,
@@ -203,8 +211,10 @@ export default function App() {
     saveStoredProducts(updated);
   };
 
+  // Compartilhar a partir do catálogo não mexe no que está aberto na calculadora.
+  const [shareProduct, setShareProduct] = useState<SavedProduct | null>(null);
   const handleShareProduct = (product: SavedProduct) => {
-    setCalcState(product.state);
+    setShareProduct(product);
     setIsShareOpen(true);
   };
 
@@ -363,9 +373,12 @@ export default function App() {
       {/* Share / Quotation Dialog */}
       <ShareModal
         isOpen={isShareOpen}
-        onClose={() => setIsShareOpen(false)}
-        state={calcState}
-        calculation={calculation}
+        onClose={() => {
+          setIsShareOpen(false);
+          setShareProduct(null);
+        }}
+        state={shareProduct ? shareProduct.state : calcState}
+        calculation={shareProduct ? calculatePricing(shareProduct.state, materials, settings) : calculation}
         materials={materials}
       />
     </div>

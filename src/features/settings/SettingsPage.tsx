@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import { NumberInput } from '../../components/NumberInput';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Sliders,
   Check,
@@ -48,11 +49,23 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
     }));
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Salvamento automático: qualquer alteração vale na hora, como no resto do app.
+  const isFirstRender = useRef(true);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     onUpdateSettings(formData);
     setSaveFeedback(true);
-    setTimeout(() => setSaveFeedback(false), 2000);
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setSaveFeedback(false), 1500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData]);
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
   };
 
   const handleExportJSON = () => {
@@ -106,19 +119,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   };
 
   const handleResetDefaults = () => {
-    onUpdateSettings(DEFAULT_SETTINGS);
     setFormData(DEFAULT_SETTINGS);
     setShowResetConfirm(false);
-    setSaveFeedback(true);
-    setTimeout(() => setSaveFeedback(false), 2000);
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
+    <div className="max-w-[1260px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-9">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-7 border-b border-border/80">
         <div>
-          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-txt">
+          <h1 className="font-display text-[24px] sm:text-[28px] font-bold tracking-tight text-txt">
             Configurações Globais
           </h1>
           <p className="text-[13px] sm:text-[14px] text-txt-muted mt-1">
@@ -126,22 +136,18 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSave}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-brand hover:bg-brand-hover text-white text-[13px] font-medium transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
+        <div
+          role="status"
+          aria-live="polite"
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[12px] font-medium self-start sm:self-auto transition-colors ${
+            saveFeedback
+              ? 'bg-semantic-success-bg border-semantic-success/30 text-semantic-success'
+              : 'bg-surface border-border text-txt-muted'
+          }`}
         >
-          {saveFeedback ? (
-            <>
-              <Check className="w-4 h-4 text-white" />
-              <span>Salvo com sucesso!</span>
-            </>
-          ) : (
-            <>
-              <span>Salvar configurações</span>
-            </>
-          )}
-        </button>
+          <Check className="w-3.5 h-3.5" />
+          <span>{saveFeedback ? 'Salvo' : 'Alterações salvas automaticamente'}</span>
+        </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-8 max-w-3xl">
@@ -160,8 +166,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 Potência média da impressora (Watts)
               </label>
               <div className="relative flex items-center">
-                <input
-                  type="number"
+                <NumberInput
+                  decimals={0}
                   min="30"
                   max="1500"
                   value={formData.printerPowerWatts}
@@ -190,9 +196,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                   R$
                 </span>
-                <input
-                  type="number"
-                  step="0.05"
+                <NumberInput
                   min="0.1"
                   max="5.0"
                   value={formData.energyCostKwh}
@@ -218,9 +222,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                   R$
                 </span>
-                <input
-                  type="number"
-                  step="0.1"
+                <NumberInput
                   min="0"
                   value={formData.wearCostPerHour}
                   onChange={(e) =>
@@ -245,9 +247,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                   R$
                 </span>
-                <input
-                  type="number"
-                  step="0.05"
+                <NumberInput
                   min="0"
                   value={formData.depreciationPerHour}
                   onChange={(e) =>
@@ -283,9 +283,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               <span className="absolute left-3 text-[12px] text-txt-muted font-mono">
                 R$
               </span>
-              <input
-                type="number"
-                step="5"
+              <NumberInput
                 min="0"
                 value={formData.laborHourlyRate}
                 onChange={(e) =>
@@ -321,9 +319,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 Shopee
               </label>
               <div className="relative flex items-center">
-                <input
-                  type="number"
-                  step="0.5"
+                <NumberInput
                   min="0"
                   max="50"
                   value={formData.channelFees.shopee}
@@ -343,9 +339,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 Mercado Livre
               </label>
               <div className="relative flex items-center">
-                <input
-                  type="number"
-                  step="0.5"
+                <NumberInput
                   min="0"
                   max="50"
                   value={formData.channelFees.mercadolivre}
@@ -365,9 +359,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 Venda Direta
               </label>
               <div className="relative flex items-center">
-                <input
-                  type="number"
-                  step="0.5"
+                <NumberInput
                   min="0"
                   max="50"
                   value={formData.channelFees.direta}
@@ -387,9 +379,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 Amazon
               </label>
               <div className="relative flex items-center">
-                <input
-                  type="number"
-                  step="0.5"
+                <NumberInput
                   min="0"
                   max="50"
                   value={formData.channelFees.amazon}
@@ -409,9 +399,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 Outro Canal
               </label>
               <div className="relative flex items-center">
-                <input
-                  type="number"
-                  step="0.5"
+                <NumberInput
                   min="0"
                   max="50"
                   value={formData.channelFees.outro}

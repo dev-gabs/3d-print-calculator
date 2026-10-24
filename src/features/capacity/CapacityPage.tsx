@@ -1,3 +1,4 @@
+import { NumberInput } from '../../components/NumberInput';
 import React, { useState } from 'react';
 import {
   Gauge,
@@ -17,7 +18,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { SavedProduct, WorkshopCapacitySettings } from '../../types/pricing';
-import { formatBRL, formatPercent } from '../../utils/pricingEngine';
+import { formatBRL, formatNumber, formatPercent } from '../../utils/pricingEngine';
 
 interface CapacityPageProps {
   products: SavedProduct[];
@@ -69,7 +70,7 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
     : 0;
 
   // Monthly Target & Break-even calculations
-  const targetProfit = Math.max(0, settings.monthlyTargetProfit || 2000);
+  const targetProfit = Math.max(0, settings.monthlyTargetProfit ?? 1000);
   const fixedCosts = Math.max(0, settings.monthlyFixedCosts || 0);
   const totalMonthlyNeed = targetProfit + fixedCosts;
 
@@ -100,7 +101,7 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
       ? Math.ceil(hoursConsumed / (hoursPerDay * daysPerMonth))
       : 2;
     statusLabel = 'Capacidade Excedida (Gargalo)';
-    statusDesc = `Essa meta exige ${occupationRatio.toFixed(0)}% do tempo da sua máquina. Você precisará de pelo menos ${minPrintersNeeded} impressoras para entregar esse volume.`;
+    statusDesc = `Essa meta exige ${formatPercent(occupationRatio)} do tempo da sua máquina. Você precisará de pelo menos ${minPrintersNeeded} impressoras para entregar esse volume.`;
   } else if (occupationRatio > 75) {
     statusTone = 'tight';
     statusLabel = 'Carga Alta (Próximo do Limite)';
@@ -258,8 +259,8 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
                     Impressoras ativas
                   </label>
                   <div className="relative">
-                    <input
-                      type="number"
+                    <NumberInput
+                      decimals={0}
                       min="1"
                       max="100"
                       value={settings.printerCount}
@@ -280,8 +281,8 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
                     Horas de máquina/dia
                   </label>
                   <div className="relative">
-                    <input
-                      type="number"
+                    <NumberInput
+                      decimals={0}
                       min="1"
                       max="24"
                       value={settings.operationalHoursPerDay}
@@ -302,8 +303,8 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
                     Dias de produção/mês
                   </label>
                   <div className="relative">
-                    <input
-                      type="number"
+                    <NumberInput
+                      decimals={0}
                       min="1"
                       max="31"
                       value={settings.operationalDaysPerMonth}
@@ -359,10 +360,8 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px] font-mono text-txt-muted pointer-events-none">
                       R$
                     </span>
-                    <input
-                      type="number"
+                    <NumberInput
                       min="0"
-                      step="50"
                       value={settings.monthlyTargetProfit}
                       onChange={(e) =>
                         handleSettingChange('monthlyTargetProfit', Math.max(0, parseFloat(e.target.value) || 0))
@@ -381,10 +380,8 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px] font-mono text-txt-muted pointer-events-none">
                       R$
                     </span>
-                    <input
-                      type="number"
+                    <NumberInput
                       min="0"
-                      step="10"
                       value={settings.monthlyFixedCosts}
                       onChange={(e) =>
                         handleSettingChange('monthlyFixedCosts', Math.max(0, parseFloat(e.target.value) || 0))
@@ -459,7 +456,7 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
                 <div className="mt-2 text-[12.5px] text-txt-muted flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-txt-muted" />
                   <span>
-                    Ritmo de entrega: <strong>{(unitsNeeded / daysPerMonth).toFixed(1)} peças por dia trabalhado</strong>
+                    Ritmo de entrega: <strong>{formatNumber(unitsNeeded / daysPerMonth, 1)} peças por dia trabalhado</strong>
                   </span>
                 </div>
               </div>
@@ -477,7 +474,7 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
                           : 'text-emerald-600 dark:text-emerald-400 font-bold'
                     }
                   >
-                    {occupationRatio.toFixed(1)}%
+                    {formatPercent(occupationRatio)}
                   </span>
                 </div>
 
@@ -497,7 +494,7 @@ export const CapacityPage: React.FC<CapacityPageProps> = ({
                 </div>
 
                 <div className="flex justify-between items-center mt-2.5 text-[11px] text-txt-muted">
-                  <span>Consome {hoursConsumed.toFixed(0)}h de máquina</span>
+                  <span>Consome {formatNumber(hoursConsumed)}h de máquina</span>
                   <span>Disponível: {totalAvailableMonthlyHours}h</span>
                 </div>
               </div>

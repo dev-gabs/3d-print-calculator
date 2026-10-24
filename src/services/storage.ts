@@ -19,7 +19,7 @@ export const DEFAULT_WORKSHOP_SETTINGS: WorkshopCapacitySettings = {
   printerCount: 1,
   operationalHoursPerDay: 16,
   operationalDaysPerMonth: 26,
-  monthlyTargetProfit: 2000.0,
+  monthlyTargetProfit: 1000.0,
   monthlyFixedCosts: 0.0,
 };
 
@@ -109,6 +109,9 @@ export const DEFAULT_SETTINGS: GlobalSettings = {
   defaultMode: 'basic',
 };
 
+/** Id da peça de exemplo que já vem salva no catálogo. */
+export const SEED_PRODUCT_ID = 'prod-headset-stand';
+
 export const INITIAL_CALC_STATE: ProductPricingState = {
   name: 'Suporte de Mesa para Headset',
   primaryMaterialId: 'mat-pla',
@@ -132,9 +135,7 @@ export const INITIAL_CALC_STATE: ProductPricingState = {
   prepMinutes: 10,
   finishMinutes: 15,
   assemblyMinutes: 0,
-  extraCosts: [
-    { id: 'extra-1', name: 'Embalagem e plástico bolha', costPerUnit: 2.5 },
-  ],
+  extraCosts: [],
   fixedChannelFee: 0,
   taxRatePct: 0,
   batchUnits: 1,
@@ -192,8 +193,8 @@ export function getStoredProducts(): SavedProduct[] {
       const settings = getStoredSettings();
       const calc = calculatePricing(INITIAL_CALC_STATE, materials, settings);
       const initialProduct: SavedProduct = {
-        id: 'prod-headset-stand',
-        state: INITIAL_CALC_STATE,
+        id: SEED_PRODUCT_ID,
+        state: { ...INITIAL_CALC_STATE, id: SEED_PRODUCT_ID },
         calculation: calc,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -219,7 +220,8 @@ export function saveStoredProducts(products: SavedProduct[]): void {
 export function getStoredLastCalcState(): ProductPricingState {
   try {
     const raw = localStorage.getItem(KEYS.LAST_CALC_STATE);
-    if (!raw) return INITIAL_CALC_STATE;
+    // Primeira visita: a calculadora abre editando a peça de exemplo já salva no catálogo.
+    if (!raw) return { ...INITIAL_CALC_STATE, id: SEED_PRODUCT_ID };
     return { ...INITIAL_CALC_STATE, ...JSON.parse(raw) };
   } catch {
     return INITIAL_CALC_STATE;

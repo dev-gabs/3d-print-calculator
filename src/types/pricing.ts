@@ -134,6 +134,6 @@ export interface WorkshopCapacitySettings {
   printerCount: number; // e.g. 1
   operationalHoursPerDay: number; // e.g. 16
   operationalDaysPerMonth: number; // e.g. 26
-  monthlyTargetProfit: number; // e.g. R$ 2000.00
+  monthlyTargetProfit: number; // e.g. R$ 1000.00
   monthlyFixedCosts: number; // e.g. R$ 300.00 (optional shop fixed overhead)
 }

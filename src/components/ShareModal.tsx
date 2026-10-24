@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Copy, Check, Share2, FileText } from 'lucide-react';
 import { ProductPricingState, CalculationResult, Material } from '../types/pricing';
-import { formatBRL, formatPercent } from '../utils/pricingEngine';
+import { formatBRL } from '../utils/pricingEngine';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -20,23 +20,35 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const primaryMat = materials.find((m) => m.id === state.primaryMaterialId);
   const materialName = primaryMat ? primaryMat.name : 'Material Padrão';
 
-  const shareText = `📋 ORÇAMENTO DE IMPRESSÃO 3D
-Peça: ${state.name || 'Peça Personalizada'}
-Material: ${materialName}
-Peso: ${state.weightGrams}g
-Tempo estimado de fabricação: ${state.printHours}h ${state.printMinutes}min
-
-💰 Preço Recomendado: ${formatBRL(calculation.recommendedPrice)}
-${state.mode === 'advanced' && state.batchUnits > 1 ? `Lote: ${state.batchUnits} unidades\nTotal: ${formatBRL(calculation.totalBatchRevenue)}\n` : ''}
-Custo estimado: ${formatBRL(calculation.totalUnitCost)}
-Margem planejada: ${formatPercent(calculation.realMarginPct)}
-
-Gerado via 3D Price Studio`;
+  // Texto para o CLIENTE: mostra só o que ele precisa saber. Custo e margem ficam com você.
+  const isBatch = state.batchUnits > 1;
+  const lines = [
+    '📋 *Orçamento de impressão 3D*',
+    '',
+    `Peça: ${state.name || 'Peça personalizada'}`,
+    `Material: ${materialName}`,
+    isBatch ? `Quantidade: ${state.batchUnits} unidades` : null,
+    '',
+    isBatch
+      ? `💰 Valor unitário: ${formatBRL(calculation.unitPriceWithBatchDiscount)}`
+      : `💰 Valor: ${formatBRL(calculation.recommendedPrice)}`,
+    isBatch ? `Total: ${formatBRL(calculation.totalBatchRevenue)}` : null,
+  ];
+  const shareText = lines.filter((l) => l !== null).join('\n');
 
   const handleCopy = async () => {
     try {
@@ -70,7 +82,7 @@ Gerado via 3D Price Studio`;
               Compartilhar Orçamento
             </h3>
             <p className="text-[12px] text-txt-muted">
-              Copie o resumo formatado para enviar no WhatsApp ou proposta
+              Resumo pronto para o cliente. Seu custo e sua margem não aparecem.
             </p>
           </div>
         </div>

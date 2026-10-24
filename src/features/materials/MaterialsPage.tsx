@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Disc, Edit2, Trash2, Check, AlertCircle, X } from 'lucide-react';
 import { Material, SavedProduct } from '../../types/pricing';
-import { formatBRL } from '../../utils/pricingEngine';
+import { formatBRL, formatNumber } from '../../utils/pricingEngine';
 
 interface MaterialsPageProps {
   materials: Material[];
@@ -18,13 +18,26 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
   onUpdateMaterial,
   onDeleteMaterial,
 }) => {
+  // Lê número digitado no padrão brasileiro: "1.000" = mil, "89,90" = 89.9.
+  const parseBR = (raw: string) => {
+    const t = raw.trim().replace(/\s|R\$/g, '');
+    if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) return parseFloat(t.replace(/\./g, '').replace(',', '.'));
+    return parseFloat(t.replace(',', '.'));
+  };
+
+  // Filamento vem em carretel; resina vem em frasco.
+  const packaging = (matType: string) =>
+    matType === 'Resina'
+      ? { price: 'Preço do frasco', weight: 'Conteúdo do frasco', noun: 'frasco' }
+      : { price: 'Preço do carretel', weight: 'Peso do carretel', noun: 'carretel' };
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
 
   // Form State
   const [name, setName] = useState('');
   const [type, setType] = useState('PLA');
-  const [spoolPrice, setSpoolPrice] = useState('89.90');
+  const [spoolPrice, setSpoolPrice] = useState('89,90');
   const [spoolWeightGrams, setSpoolWeightGrams] = useState('1000');
   const [brand, setBrand] = useState('');
   const [formError, setFormError] = useState('');
@@ -34,7 +47,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
     setEditingMaterial(null);
     setName('');
     setType('PLA');
-    setSpoolPrice('89.90');
+    setSpoolPrice('89,90');
     setSpoolWeightGrams('1000');
     setBrand('');
     setFormError('');
@@ -45,8 +58,8 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
     setEditingMaterial(mat);
     setName(mat.name);
     setType(mat.type);
-    setSpoolPrice(mat.spoolPrice.toString());
-    setSpoolWeightGrams(mat.spoolWeightGrams.toString());
+    setSpoolPrice(mat.spoolPrice.toFixed(2).replace('.', ','));
+    setSpoolWeightGrams(String(mat.spoolWeightGrams).replace('.', ','));
     setBrand(mat.brand || '');
     setFormError('');
     setIsModalOpen(true);
@@ -59,15 +72,15 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
       return;
     }
 
-    const price = parseFloat(spoolPrice.replace(',', '.'));
-    const weight = parseFloat(spoolWeightGrams.replace(',', '.'));
+    const price = parseBR(spoolPrice);
+    const weight = parseBR(spoolWeightGrams);
 
     if (isNaN(price) || price <= 0) {
-      setFormError('Informe um valor de carretel válido maior que zero');
+      setFormError(`Informe um preço do ${packaging(type).noun} maior que zero`);
       return;
     }
     if (isNaN(weight) || weight <= 0) {
-      setFormError('Informe o peso do carretel em gramas');
+      setFormError(`Informe o conteúdo do ${packaging(type).noun} em gramas`);
       return;
     }
 
@@ -105,17 +118,17 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
   };
 
   const calculatedPreviewPricePerKg = () => {
-    const p = parseFloat(spoolPrice.replace(',', '.')) || 0;
-    const w = parseFloat(spoolWeightGrams.replace(',', '.')) || 1000;
+    const p = parseBR(spoolPrice) || 0;
+    const w = parseBR(spoolWeightGrams) || 1000;
     return (p / w) * 1000;
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
+    <div className="max-w-[1260px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-9">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-7 border-b border-border/80">
         <div>
-          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-txt">
+          <h1 className="font-display text-[24px] sm:text-[28px] font-bold tracking-tight text-txt">
             Catálogo de Materiais & Filamentos
           </h1>
           <p className="text-[13px] sm:text-[14px] text-txt-muted mt-1">
@@ -168,15 +181,15 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                 {/* Dados de Preço */}
                 <div className="space-y-1.5 my-4 pt-3 border-t border-border/70 text-[12.5px]">
                   <div className="flex items-center justify-between text-txt-muted">
-                    <span>Preço do carretel:</span>
+                    <span>{packaging(mat.type).price}:</span>
                     <span className="font-mono text-txt font-medium">
                       {formatBRL(mat.spoolPrice)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-txt-muted">
-                    <span>Peso do rolo:</span>
+                    <span>{packaging(mat.type).weight}:</span>
                     <span className="font-mono text-txt font-medium">
-                      {mat.spoolWeightGrams}g
+                      {formatNumber(mat.spoolWeightGrams)} g
                     </span>
                   </div>
                   <div className="flex items-center justify-between pt-1 border-t border-border/50">
@@ -265,7 +278,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
               {editingMaterial ? 'Editar Material' : 'Cadastrar Novo Material'}
             </h3>
             <p className="text-[12px] text-txt-muted mb-4">
-              Informe o preço e peso do rolo para calcular o custo exato por grama.
+              Informe o preço e o peso da embalagem (carretel ou frasco) para calcular o custo exato por grama.
             </p>
 
             {formError && (
@@ -327,7 +340,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[12px] text-txt-muted mb-1 font-medium">
-                    Preço pago no rolo
+                    {packaging(type).price}
                   </label>
                   <div className="relative flex items-center">
                     <span className="absolute left-2.5 text-[12px] text-txt-muted font-mono">
@@ -337,7 +350,8 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
                       type="text"
                       value={spoolPrice}
                       onChange={(e) => setSpoolPrice(e.target.value)}
-                      placeholder="89.90"
+                      inputMode="decimal"
+                      placeholder="89,90"
                       className="w-full pl-8 pr-2.5 py-1.5 bg-surface border border-border rounded-md text-[13px] font-mono text-txt outline-none"
                     />
                   </div>
@@ -345,13 +359,14 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({
 
                 <div>
                   <label className="block text-[12px] text-txt-muted mb-1 font-medium">
-                    Peso do rolo
+                    {packaging(type).weight}
                   </label>
                   <div className="relative flex items-center">
                     <input
                       type="text"
                       value={spoolWeightGrams}
                       onChange={(e) => setSpoolWeightGrams(e.target.value)}
+                      inputMode="decimal"
                       placeholder="1000"
                       className="w-full px-2.5 py-1.5 pr-7 bg-surface border border-border rounded-md text-[13px] font-mono text-txt outline-none"
                     />

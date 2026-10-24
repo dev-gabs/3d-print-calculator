@@ -5,14 +5,40 @@ import {
   CalculationResult,
 } from '../types/pricing';
 
+/** Formata no padrão brasileiro: R$ 4.130,00 */
 export function formatBRL(value: number): string {
   if (isNaN(value) || !isFinite(value)) return 'R$ 0,00';
-  return 'R$ ' + value.toFixed(2).replace('.', ',');
+  const abs = Math.abs(value).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return (value < 0 ? '-R$ ' : 'R$ ') + abs;
 }
 
+/** Formata número com vírgula decimal e ponto de milhar: 4,5 · 1.250 */
+export function formatNumber(value: number, decimals: number = 0): string {
+  if (isNaN(value) || !isFinite(value)) return '0';
+  return value.toLocaleString('pt-BR', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
+/** Formata porcentagem com vírgula decimal: 48% · 48,5% */
 export function formatPercent(value: number, decimals: number = 0): string {
   if (isNaN(value) || !isFinite(value)) return '0%';
-  return value.toFixed(decimals) + '%';
+  return formatNumber(value, decimals) + '%';
+}
+
+/** Margem mínima aceita pelos controles de margem. */
+export const MIN_MARGIN_PCT = 5;
+
+/**
+ * Teto de margem que ainda gera um preço viável, descontando comissão e impostos.
+ * Usado pelos controles da calculadora para nunca mostrar margens impossíveis.
+ */
+export function getMaxMarginPct(channelFeePct: number = 0, taxRatePct: number = 0): number {
+  return Math.max(10, Math.floor(95 - Math.max(0, channelFeePct) - Math.max(0, taxRatePct)));
 }
 
 export function calculateMarginFromSalePrice(

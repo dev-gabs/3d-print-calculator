@@ -11,9 +11,12 @@ import {
   Layers,
   ArrowUpDown,
   AlertCircle,
+  LayoutGrid,
+  List,
+  Clock,
 } from 'lucide-react';
 import { Material, SavedProduct } from '../../types/pricing';
-import { formatBRL, formatPercent } from '../../utils/pricingEngine';
+import { formatBRL, formatNumber, formatPercent } from '../../utils/pricingEngine';
 
 interface ProductsPageProps {
   products: SavedProduct[];
@@ -37,6 +40,22 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'price' | 'profit' | 'name'>('date');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  // Visualização em cards (padrão, e sempre no celular) ou tabela (opção no computador).
+  const [view, setView] = useState<'cards' | 'table'>(() => {
+    try {
+      return localStorage.getItem('3dprice_products_view') === 'table' ? 'table' : 'cards';
+    } catch {
+      return 'cards';
+    }
+  });
+  const changeView = (v: 'cards' | 'table') => {
+    setView(v);
+    try {
+      localStorage.setItem('3dprice_products_view', v);
+    } catch {
+      /* preferência só desta sessão */
+    }
+  };
 
   const filteredProducts = products.filter((p) =>
     p.state.name.toLowerCase().includes(search.toLowerCase())
@@ -61,7 +80,10 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
     totalProducts > 0
       ? products.reduce((acc, p) => acc + p.calculation.recommendedPrice, 0) / totalProducts
       : 0;
-  const totalPotentialProfit = products.reduce((acc, p) => acc + p.calculation.profit, 0);
+  const avgProfit =
+    totalProducts > 0
+      ? products.reduce((acc, p) => acc + p.calculation.profit, 0) / totalProducts
+      : 0;
   const avgMargin =
     totalProducts > 0
       ? products.reduce((acc, p) => acc + p.calculation.realMarginPct, 0) / totalProducts
@@ -86,11 +108,11 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8">
+    <div className="max-w-[1260px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-9">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-7 border-b border-border/80">
         <div>
-          <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-tight text-txt">
+          <h1 className="font-display text-[24px] sm:text-[28px] font-bold tracking-tight text-txt">
             Catálogo de Peças & Precificações
           </h1>
           <p className="text-[13px] sm:text-[14px] text-txt-muted mt-1">
@@ -130,7 +152,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
       ) : (
         <>
           {/* Métricas Resumidas em Faixa Única (Sem empilhamento excessivo de cards) */}
-          <div className="mb-6 p-4 rounded-xl bg-surface border border-border grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-border shadow-2xs">
+          <div className="mb-6 p-4 rounded-xl bg-surface border border-border grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-5 md:divide-x divide-border shadow-2xs">
             <div className="flex flex-col">
               <span className="text-[11px] text-txt-muted font-mono uppercase tracking-wider">
                 Peças Salvas
@@ -139,7 +161,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                 {totalProducts}
               </span>
             </div>
-            <div className="flex flex-col pt-3 md:pt-0 md:pl-4">
+            <div className="flex flex-col md:pl-4">
               <span className="text-[11px] text-txt-muted font-mono uppercase tracking-wider">
                 Preço Médio
               </span>
@@ -147,15 +169,15 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                 {formatBRL(avgPrice)}
               </span>
             </div>
-            <div className="flex flex-col pt-3 md:pt-0 md:pl-4">
+            <div className="flex flex-col md:pl-4">
               <span className="text-[11px] text-txt-muted font-mono uppercase tracking-wider">
-                Lucro Total Acumulado
+                Lucro médio por peça
               </span>
               <span className="font-mono text-[20px] font-semibold text-brand mt-1 tabular-nums">
-                {formatBRL(totalPotentialProfit)}
+                {formatBRL(avgProfit)}
               </span>
             </div>
-            <div className="flex flex-col pt-3 md:pt-0 md:pl-4">
+            <div className="flex flex-col md:pl-4">
               <span className="text-[11px] text-txt-muted font-mono uppercase tracking-wider">
                 Margem Média
               </span>
@@ -179,6 +201,26 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
             </div>
 
             <div className="flex items-center gap-2 self-end sm:self-auto text-[12px]">
+              <div className="hidden md:inline-flex p-0.5 rounded-lg bg-surface border border-border mr-1" role="group" aria-label="Modo de visualização">
+                {([
+                  ['cards', LayoutGrid, 'Cards'],
+                  ['table', List, 'Tabela'],
+                ] as const).map(([id, Icon, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => changeView(id)}
+                    aria-pressed={view === id}
+                    title={`Ver em ${label.toLowerCase()}`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[12px] font-medium transition-colors cursor-pointer ${
+                      view === id ? 'bg-brand-subtle text-brand' : 'text-txt-muted hover:text-txt'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{label}</span>
+                  </button>
+                ))}
+              </div>
               <span className="text-txt-muted flex items-center gap-1">
                 <ArrowUpDown className="w-3.5 h-3.5" /> Ordenar:
               </span>
@@ -195,8 +237,134 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
             </div>
           </div>
 
-          {/* Lista de Produtos em Tabela Limpa e Responsiva */}
-          <div className="bg-surface rounded-xl border border-border overflow-hidden shadow-2xs">
+          {sortedProducts.length === 0 && (
+            <div className="p-8 text-center text-[13px] text-txt-muted bg-surface rounded-xl border border-dashed border-border">
+              Nenhuma peça encontrada para "<strong className="text-txt">{search}</strong>".
+            </div>
+          )}
+
+          {/* Cards: sempre no celular; no computador quando escolhido */}
+          <div className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 ${view === 'table' ? 'md:hidden' : ''}`}>
+            {sortedProducts.map((p) => {
+              const isDeleting = deleteConfirmId === p.id;
+              const margin = p.calculation.realMarginPct;
+              const marginTone =
+                p.calculation.profit < 0
+                  ? 'bg-semantic-danger-bg text-semantic-danger'
+                  : margin < 15
+                    ? 'bg-accent-amber-bg text-accent-amber'
+                    : 'bg-brand-subtle text-brand';
+              return (
+                <article
+                  key={p.id}
+                  className="bg-surface rounded-2xl border border-border p-5 shadow-2xs hover:border-border-subtle transition-colors flex flex-col"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-[14.5px] text-txt leading-snug truncate" title={p.state.name}>
+                        {p.state.name || 'Sem título'}
+                      </h3>
+                      <span className="text-[11px] text-txt-muted flex items-center gap-1 mt-1">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(p.updatedAt)}
+                        {p.state.mode === 'advanced' && (
+                          <span className="ml-1 px-1.5 rounded bg-brand-light text-brand text-[10px] font-mono">
+                            Avançado
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <span className={`shrink-0 font-mono text-[11.5px] font-semibold px-2 py-0.5 rounded-full ${marginTone}`}>
+                      {formatPercent(margin)}
+                    </span>
+                  </div>
+
+                  <div className="mt-4">
+                    <span className="block text-[11px] font-mono uppercase tracking-wider text-txt-muted">
+                      Preço de venda
+                    </span>
+                    <span className="block font-display text-[28px] font-bold text-txt tracking-tight tabular-nums leading-tight">
+                      {formatBRL(p.calculation.recommendedPrice)}
+                    </span>
+                    <span className="block text-[12px] text-txt-muted mt-0.5">
+                      Lucro <strong className="text-brand font-semibold">{formatBRL(p.calculation.profit)}</strong>
+                      {' · '}Custo {formatBRL(p.calculation.totalUnitCost)}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-border/70 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-txt-muted">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5" />
+                      {getMaterialName(p.state.primaryMaterialId)} · {formatNumber(p.state.weightGrams)} g
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      {p.state.printHours}h {p.state.printMinutes}min
+                    </span>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between gap-2">
+                    {isDeleting ? (
+                      <div className="flex items-center gap-1.5 w-full justify-end">
+                        <span className="text-[12px] text-red-600 font-medium mr-1">Excluir esta peça?</span>
+                        <button
+                          onClick={() => onDelete(p.id)}
+                          className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-[12px] font-medium cursor-pointer"
+                        >
+                          Sim
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(null)}
+                          className="px-2.5 py-1 bg-canvas border border-border text-txt rounded-md text-[12px] cursor-pointer"
+                        >
+                          Não
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => onLoadIntoCalculator(p)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-canvas border border-border text-[12px] font-semibold text-txt hover:border-brand/40 hover:text-brand transition-colors cursor-pointer"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Abrir na calculadora</span>
+                        </button>
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            onClick={() => onDuplicate(p)}
+                            title="Duplicar peça"
+                            aria-label="Duplicar peça"
+                            className="p-2 text-txt-muted hover:text-txt hover:bg-canvas rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => onShareProduct(p)}
+                            title="Copiar orçamento"
+                            aria-label="Copiar orçamento"
+                            className="p-2 text-txt-muted hover:text-txt hover:bg-canvas rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmId(p.id)}
+                            title="Excluir peça"
+                            aria-label="Excluir peça"
+                            className="p-2 text-txt-muted hover:text-red-600 hover:bg-canvas rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          {/* Tabela: opção no computador */}
+          <div className={`bg-surface rounded-xl border border-border overflow-hidden shadow-2xs ${view === 'table' ? 'hidden md:block' : 'hidden'}`}>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -205,7 +373,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                     <th className="py-3 px-4 font-semibold">Material & Peso</th>
                     <th className="py-3 px-4 font-semibold">Tempo</th>
                     <th className="py-3 px-4 font-semibold text-right">Custo</th>
-                    <th className="py-3 px-4 font-semibold text-right">Preço Sugerido</th>
+                    <th className="py-3 px-4 font-semibold text-right">Preço de venda</th>
                     <th className="py-3 px-4 font-semibold text-right">Lucro</th>
                     <th className="py-3 px-4 font-semibold text-center">Margem</th>
                     <th className="py-3 px-4 font-semibold text-right">Ações</th>
@@ -244,7 +412,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                               {getMaterialName(p.state.primaryMaterialId)}
                             </span>
                             <span className="text-[11px] font-mono">
-                              {p.state.weightGrams}g
+                              {formatNumber(p.state.weightGrams)} g
                             </span>
                           </div>
                         </td>
