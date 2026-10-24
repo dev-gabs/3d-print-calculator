@@ -8,7 +8,11 @@ import {
   Sun,
   Moon,
   Gauge,
+  Download,
+  Share,
+  X,
 } from 'lucide-react';
+import { useInstallPrompt } from '../hooks/useInstallPrompt';
 
 export type ActiveTab = 'calculator' | 'products' | 'materials' | 'capacity' | 'settings';
 
@@ -37,6 +41,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleTheme,
 }) => {
   const [hovered, setHovered] = useState(false);
+  const { mode: installMode, install } = useInstallPrompt();
+  const [showIosHint, setShowIosHint] = useState(false);
+  const canInstall = installMode === 'prompt' || installMode === 'ios';
+
+  const handleInstall = () => {
+    if (installMode === 'prompt') {
+      install();
+    } else if (installMode === 'ios') {
+      setShowIosHint(true);
+      if (onCloseMobile) onCloseMobile();
+    }
+  };
 
   const navItems = [
     {
@@ -270,6 +286,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
               style={{ borderTop: '1px solid var(--color-sidebar-border)' }}
             />
 
+            {/* Install app (PWA) */}
+            {canInstall && (
+              <button
+                onClick={handleInstall}
+                title={!isExpanded ? 'Instalar app' : undefined}
+                className={`w-full flex items-center ${
+                  !isExpanded ? 'justify-center' : ''
+                } gap-2.5 px-3 py-2.5 rounded-md text-[13px] font-medium transition-colors text-left border border-transparent cursor-pointer`}
+                style={{ color: 'var(--color-sidebar-active-text)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Download className="w-4 h-4 shrink-0" style={{ color: '#A5B4FC' }} strokeWidth={1.8} />
+                {isExpanded && <span className="whitespace-nowrap">Instalar app</span>}
+              </button>
+            )}
+
             {/* Theme toggle */}
             <button
               onClick={onToggleTheme}
@@ -321,6 +358,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
       </aside>
+
+      {/* iPhone/iPad: o Safari não tem botão de instalar, só o menu Compartilhar */}
+      {showIosHint && (
+        <div
+          role="dialog"
+          aria-label="Como instalar no iPhone"
+          className="fixed left-4 right-4 bottom-4 z-[60] mx-auto max-w-sm bg-surface border border-border rounded-xl shadow-xl p-4 text-txt animate-fadeIn"
+        >
+          <button
+            onClick={() => setShowIosHint(false)}
+            className="absolute right-3 top-3 text-txt-muted hover:text-txt p-1 rounded-md"
+            aria-label="Fechar"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <h4 className="text-[14px] font-semibold mb-1.5 pr-6">Instalar a 3D Price</h4>
+          <p className="text-[12px] text-txt-muted leading-relaxed">
+            No Safari, toque em{' '}
+            <Share className="inline w-3.5 h-3.5 -mt-0.5 text-brand" aria-label="Compartilhar" />{' '}
+            <strong className="text-txt font-medium">Compartilhar</strong> e depois em{' '}
+            <strong className="text-txt font-medium">Adicionar à Tela de Início</strong>.
+          </p>
+        </div>
+      )}
     </>
   );
 };
